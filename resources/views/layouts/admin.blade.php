@@ -32,7 +32,7 @@
                 Nahinn Store
             </a>
         </div>
-        <nav class="sidebar-nav">
+        <!-- <nav class="sidebar-nav">
             <ul>
                 <li class="nav-item nav-item-has-children">
                     <a href="{{route('admin.dashboard')}}">
@@ -190,7 +190,180 @@
                     </ul>
                 </li>
             </ul>
-        </nav>
+        </nav> -->
+        <nav class="sidebar-nav">
+    <ul>
+    <li class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+            <a href="{{route('admin.dashboard')}}">
+                <span class="icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M8.74999 18.3333C12.2376 18.3333 15.1364 15.8128 15.7244 12.4941C15.8448 11.8143 15.2737 11.25 14.5833 11.25H9.99999C9.30966 11.25 8.74999 10.6903 8.74999 10V5.41666C8.74999 4.7263 8.18563 4.15512 7.50586 4.27556C4.18711 4.86357 1.66666 7.76243 1.66666 11.25C1.66666 15.162 4.83797 18.3333 8.74999 18.3333Z" />
+                        <path
+                            d="M17.0833 10C17.7737 10 18.3432 9.43708 18.2408 8.75433C17.7005 5.14918 14.8508 2.29947 11.2457 1.75912C10.5629 1.6568 10 2.2263 10 2.91665V9.16666C10 9.62691 10.3731 10 10.8333 10H17.0833Z" />
+                    </svg>
+                </span>
+                <span class="text">Dashboard</span>
+            </a>
+        </li>
+
+        <li class="nav-item {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+            <a href="{{route('admin.categories.index')}}">
+                <span class="icon">
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                        viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
+                            d="M9 8h10M9 12h10M9 16h10M4.99 8H5m-.02 4h.01m0 4H5" />
+                    </svg>
+                </span>
+                <span class="text">Categories</span>
+            </a>
+        </li>
+
+        <li class="nav-item {{ request()->routeIs('admin.brands.*') ? 'active' : '' }}">
+            <a href="{{route('admin.brands.index')}}">
+                <span class="icon">
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                        viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"
+                            d="m17 21-5-4-5 4V3.889a.92.92 0 0 1 .244-.629.808.808 0 0 1 .59-.26h8.333a.81.81 0 0 1 .589.26.92.92 0 0 1 .244.63V21Z" />
+                    </svg>
+                </span>
+                <span class="text">Brands</span>
+            </a>
+        </li>
+
+        <li class="nav-item nav-item-has-children {{ request()->routeIs('admin.products.*') || request()->routeIs('admin.types.*') ? 'active' : '' }}">
+            <a href="#" class="collapsed" data-bs-toggle="collapse" data-bs-target="#ddmenu_2"
+                aria-controls="ddmenu_2" aria-expanded="false" aria-label="Toggle navigation">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                    viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linejoin="round" stroke-width="2"
+                        d="M10 12v1h4v-1m4 7H6a1 1 0 0 1-1-1V9h14v9a1 1 0 0 1-1 1ZM4 5h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
+                </svg>
+                <span class="text">Products</span>
+            </a>
+            <ul id="ddmenu_2" class="collapse dropdown-nav">
+                <li>
+                    <a href="{{route('admin.products.index')}}" class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}">Products</a>
+                </li>
+                <li>
+                    <a href="{{route('admin.types.index')}}" class="{{ request()->routeIs('admin.types.*') ? 'active' : '' }}">Types</a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="nav-item {{ request()->routeIs('admin.blogs.*') ? 'active' : '' }}">
+            <a href="{{route('admin.blogs.index')}}">
+                <span class="icon">
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                        viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 19V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v13H7a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h12M9 3v14m7 0v4" />
+                    </svg>
+                </span>
+                <span class="text">Blogs</span>
+            </a>
+        </li>
+
+        <li class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+            <a href="{{route('admin.users.index')}}">
+                <span class="icon">
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                        viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-width="2"
+                            d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                </span>
+                <span class="text">Users</span>
+            </a>
+        </li>
+
+        <li class="nav-item {{ request()->routeIs('admin.discounts.*') ? 'active' : '' }}">
+            <a href="{{route('admin.discounts.index')}}">
+                <span class="icon">
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                        viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
+                            d="M8 7V6a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1M3 18v-7a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                    </svg>
+                </span>
+                <span class="text">Discounts</span>
+            </a>
+        </li>
+
+        <li class="nav-item {{ request()->routeIs('admin.vouchers.*') ? 'active' : '' }}">
+            <a href="{{route('admin.vouchers.index')}}">
+                <span class="icon">
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                        viewBox="0 0 24 24">
+                        <path fill-rule="evenodd"
+                            d="M20.29 8.567c.133.323.334.613.59.85v.002a3.536 3.536 0 0 1 0 5.166 2.442 2.442 0 0 0-.776 1.868 3.534 3.534 0 0 1-3.651 3.653 2.483 2.483 0 0 0-1.87.776 3.537 3.537 0 0 1-5.164 0 2.44 2.44 0 0 0-1.87-.776 3.533 3.533 0 0 1-3.653-3.654 2.44 2.44 0 0 0-.775-1.868 3.537 3.537 0 0 1 0-5.166 2.44 2.44 0 0 0 .775-1.87 3.55 3.55 0 0 1 1.033-2.62 3.594 3.594 0 0 1 2.62-1.032 2.401 2.401 0 0 0 1.87-.775 3.535 3.535 0 0 1 5.165 0 2.444 2.444 0 0 0 1.869.775 3.532 3.532 0 0 1 3.652 3.652c-.012.35.051.697.184 1.02ZM9.927 7.371a1 1 0 1 0 0 2h.01a1 1 0 0 0 0-2h-.01Zm5.889 2.226a1 1 0 0 0-1.414-1.415L8.184 14.4a1 1 0 0 0 1.414 1.414l6.218-6.217Zm-2.79 5.028a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01Z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </span>
+                <span class="text">Vouchers</span>
+            </a>
+        </li>
+
+        <li class="nav-item nav-item-has-children {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+            <a href="#" class="collapsed" data-bs-toggle="collapse" data-bs-target="#ddmenu_4"
+                aria-controls="ddmenu_4" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="icon">
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                        viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M17 8H5m12 0a1 1 0 0 1 1 1v2.6M17 8l-4-4M5 8a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.6M5 8l4-4 4 4m6 4h-4a2 2 0 1 0 0 4h4a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1Z" />
+                    </svg>
+                </span>
+                <span class="text">Orders</span>
+            </a>
+            <ul id="ddmenu_4" class="collapse dropdown-nav">
+                <li>
+                    <a href="{{route('admin.orders.index')}}" class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">Orders</a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="nav-item nav-item-has-children {{ request()->routeIs('admin.reviewBlogs.*') || request()->routeIs('admin.reviewProducts.*') ? 'active' : '' }}">
+            <a href="#" class="collapsed" data-bs-toggle="collapse" data-bs-target="#ddmenu_55"
+                aria-controls="ddmenu_55" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="icon">
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                        viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15.583 8.445h.01M10.86 19.71l-6.573-6.63a.993.993 0 0 1 0-1.4l7.329-7.394A.98.98 0 0 1 12.31 4l5.734.007A1.968 1.968 0 0 1 20 5.983v5.5a.992.992 0 0 1-.316.727l-7.44 7.5a.974.974 0 0 1-1.384.001Z" />
+                            </svg>
+                </span>
+                <span class="text">Reviews</span>
+            </a>
+            <ul id="ddmenu_55" class="collapse dropdown-nav">
+                <li>
+                    <a href="{{route('admin.reviewBlogs.index')}}" class="{{ request()->routeIs('admin.reviewBlogs.*') ? 'active' : '' }}">Blogs</a>
+                </li>
+                <li>
+                    <a href="{{route('admin.reviewProducts.index')}}" class="{{ request()->routeIs('admin.reviewProducts.*') ? 'active' : '' }}">Products</a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</nav>
+    
+    
     </aside>
     <div class="overlay"></div>
 

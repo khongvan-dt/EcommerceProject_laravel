@@ -11,38 +11,7 @@
             </div>
             
             <div class="col-lg-10 col-md-10">
-                <!-- <nav class="header__menu mobile-menu">
-                    <ul>
-                        <li class="active"><a href="{{ route('dashboard') }}">Home</a></li>
-                        <li><a href="{{ route('shop') }}">Shop</a></li>
-                        <li><a href="#">Pages</a>
-                            <ul class="dropdown">
-                                <li><a href="{{route('about')}}">About Us</a></li>
-                                <li><a href="{{route('shop')}}}">Shop Details</a></li>
-                                <li><a href="{{route('cart')}}">Shopping Cart</a></li>
-                                <li><a href="{{route('viewOrder')}}">Check Out</a></li>
-                            </ul>
-                        </li>
-                        <li><a href="{{route('blog')}}">Blog</a></li>
-                        <li><a href="{{route('contact')}}">Contacts</a></li>
-                        @if (Auth::check())
-                            <li class="dropdown">
-                                <a href="#">My Account</a>
-                                <ul class="dropdown">
-                                    <form id="logoutForm" method="POST" action="{{ route('logout') }}">
-                                        @csrf
-                                        <li><a href="#" id="logoutLink">Logout</a></li>
-                                    </form>
-                                    <li><a href="">Edit Profile</a></li>
-                                    <li><a href="{{ route('viewOrder') }}">My Orders</a></li>
-                                </ul>
-                            </li>
-                        @else
-                            <li><a href="{{ route('login') }}">SignIn</a></li>
-                            <li><a href="{{ route('register') }}">SignUp</a></li>
-                        @endif
-                    </ul>
-                </nav> -->
+             
                 <nav class="header__menu mobile-menu">
                     <ul>
                         <li class="{{ Request::routeIs('dashboard') ? 'active' : '' }}">
@@ -74,28 +43,28 @@
                         <li class="{{ Request::routeIs('contact') ? 'active' : '' }}">
                             <a href="{{route('contact')}}">Contacts</a>
                         </li>
-                        @if (Auth::check())
-                            <li class="dropdown {{ Request::routeIs('viewOrder') ? 'active' : '' }}">
-                                <a href="#">My Account</a>
-                                <ul class="dropdown">
-                                    <form id="logoutForm" method="POST" action="{{ route('logout') }}">
-                                        @csrf
-                                        <li><a href="#" id="logoutLink">Logout</a></li>
-                                    </form>
-                                    <li><a href="">Edit Profile</a></li>
-                                    <li class="{{ Request::routeIs('viewOrder') ? 'active' : '' }}">
-                                        <a href="{{ route('viewOrder') }}">My Orders</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        @else
-                            <li class="{{ Request::routeIs('login') ? 'active' : '' }}">
-                                <a href="{{ route('login') }}">SignIn</a>
-                            </li>
-                            <li class="{{ Request::routeIs('register') ? 'active' : '' }}">
-                                <a href="{{ route('register') }}">SignUp</a>
-                            </li>
-                        @endif
+                            @if (Auth::check())
+                                <li class="dropdown {{ Request::routeIs('viewOrder') ? 'active' : '' }}">
+                                    <a href="#">My Account</a>
+                                    <ul class="dropdown">
+                                        <form id="logoutForm" method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <li><a href="#" id="logoutLink">Logout</a></li>
+                                        </form>
+                                        <li><a href="">Edit Profile</a></li>
+                                        <li class="{{ Request::routeIs('viewOrder') ? 'active' : '' }}">
+                                            <a href="{{ route('viewOrder') }}">My Orders</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            @else
+                                <li class="{{ Request::routeIs('login') ? 'active' : '' }}">
+                                    <a href="{{ route('login') }}">SignIn</a>
+                                </li>
+                                <li class="{{ Request::routeIs('register') ? 'active' : '' }}">
+                                    <a href="{{ route('register') }}">SignUp</a>
+                                </li>
+                            @endif
                     </ul>
                 </nav>
             </div>
@@ -112,7 +81,7 @@
 <!-- Header Section End -->
 <script>
     document.getElementById('logoutLink').addEventListener('click', function (e) {
-        e.preventDefault(); // Ngăn chặn hành vi mặc định của liên kết
-        document.getElementById('logoutForm').submit(); // Gửi form
+        e.preventDefault(); 
+        document.getElementById('logoutForm').submit(); 
     });
 </script>

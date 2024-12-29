@@ -1,84 +1,122 @@
 @extends('layouts.admin')
 
 @section('content')
-    <section class="section">
-        <div class="container-fluid">
-            <div class="title-wrapper pt-30">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <div class="title">
-                            <h2>Add New Product</h2>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="breadcrumb-wrapper">
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item">
-                                        <a href="#0">Dashboard</a>
-                                    </li>
-                                    <li class="breadcrumb-item active" aria-current="page">
-                                        Products
-                                    </li>
-                                </ol>
-                            </nav>
-                        </div>
+<section class="section">
+    <div class="container-fluid">
+        <div class="title-wrapper pt-30">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="title">
+                        <h2>Edit Product: {{ $product->name }}</h2>
                     </div>
                 </div>
             </div>
-            <!-- end row -->
-            <div class="form-elements-wrapper">
-                <div class="row">
+        </div>
+        
+        <div class="form-elements-wrapper">
+            <div class="row">
+            <form method="POST" action="{{ route('admin.products.store.update', $product->id) }}" enctype="multipart/form-data">
+            @csrf
                     <div class="col-lg-12">
-                        <!-- input style start -->
                         <div class="card-style">
                             <div class="input-style-1">
                                 <label>Product Name</label>
-                                <input type="text" placeholder="Product Name" name="name" required/>
+                                <input type="text" name="name" value="{{ old('name', $product->name) }}" required />
+                                @error('name')
+                                    <div class="text-danger mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
-                            <!-- end input -->
+
                             <div class="input-style-2">
                                 <label>Product Slug</label>
-                                <input type="text" placeholder="Slug Product" />
+                                <input type="text" name="slug" value="{{ old('slug', $product->slug) }}" />
+                                @error('slug')
+                                    <div class="text-danger mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
+
                             <div class="select-style-1">
                                 <label>Choose Brand</label>
                                 <div class="select-position">
-                                    <select>
+                                    <select name="brandId">
                                         <option value="">Select Brand</option>
-                                        <option value="1">Brand One</option>
-                                        <option value="2">Brand Two</option>
-                                        <option value="3">Brand Three</option>
+                                        @foreach ($brands as $brand)
+                                            <option value="{{ $brand->id }}" 
+                                                {{ old('brandId', $product->brandId) == $brand->id ? 'selected' : '' }}>
+                                                {{ $brand->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @error('brandId')
+                                    <div class="text-danger mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="select-style-1">
+                                <label>Choose Category</label>
+                                <div class="select-position">
+                                    <select name="categoryId">
+                                        <option value="">Select Category</option>
+                                        @foreach ($categories as $category)
+                                            <option value="{{ $category->id }}"
+                                                {{ old('categoryId', $product->productCategory->categoryId) == $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
+
                             <div class="card-style mb-30">
                                 <h6 class="mb-25">Description</h6>
                                 <div class="input-style-3">
-                                    <textarea placeholder="Product Description" rows="5"></textarea>
-                                    <span class="icon"><i class="lni lni-text-format"></i></span>
+                                    <textarea name="description" rows="5">{{ old('description', $product->description) }}</textarea>
                                 </div>
-                                <!-- end textarea -->
                             </div>
-                            <div class="justify-content-center list-unstyled d-flex gap-3">
-                                <li class="">
-                                    <a href="#0" class="main-btn success-btn rounded-full btn-hover">Save</a>
-                                </li>
 
-                                <li>
-                                    <a href="#0" class="main-btn danger-btn rounded-full btn-hover">Reset</a>
-                                </li>
+                            <div class="select-style-1">
+                                <label>Choose Product Type</label>
+                                <div class="select-position">
+                                    <select name="typeId">
+                                        <option value="">Select Type</option>
+                                        @foreach ($types as $type)
+                                            <option value="{{ $type->id }}"
+                                                {{ old('typeId', $product->productType->typeId) == $type->id ? 'selected' : '' }}>
+                                                {{ $type->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
-                            <!-- end input -->
+
+                            <div class="input-style-2">
+                                <label>Current Main Image</label>
+                                @if($product->mainImage)
+                                    <img src="{{ Storage::url($product->mainImage->mediaUrl) }}" width="200">
+                                @endif
+                                <input type="file" name="mainImage" />
+                            </div>
+
+                            <div class="input-style-2">
+                                <label>Additional Images</label>
+                                <div class="current-images mb-3">
+                                    @foreach($product->productMedia->where('mainImage', 0) as $media)
+                                        <img src="{{ Storage::url($media->mediaUrl) }}" width="100" class="mr-2">
+                                    @endforeach
+                                </div>
+                                <input type="file" name="additionalImages[]" multiple />
+                            </div>
+
+                            <div class="button-group">
+                                <button type="submit" class="main-btn success-btn btn-hover">Update Product</button>
+                                <a href="{{ route('admin.products.index') }}" class="main-btn danger-btn btn-hover">Cancel</a>
+                            </div>
                         </div>
                     </div>
-                    <!-- end col -->
-                </div>
-                <!-- end row -->
+                </form>
             </div>
         </div>
-        <!-- ========== title-wrapper end ========== -->
-        </div>
-        <!-- end container -->
-    </section>
+    </div>
+</section>
 @endsection

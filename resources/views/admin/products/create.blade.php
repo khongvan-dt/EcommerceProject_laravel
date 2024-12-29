@@ -29,8 +29,8 @@
             <!-- end row -->
             <div class="form-elements-wrapper">
                 <div class="row">
-                    <form method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data">
-                        @csrf
+                <form method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data">
+                @csrf
                         <div class="col-lg-12">
                             <!-- input style start -->
                             <div class="card-style">

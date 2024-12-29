@@ -34,18 +34,13 @@ class Products extends Model
         return $this->belongsToMany(Categories::class, 'product_category', 'productId', 'categoryId');
     }
 
-    public function mainImage()
-    {
-        return $this->hasOne(ProductMedia::class, 'productId', 'id')
-            ->where('mainImage', '1');
-    }
+   
 
     public function attributeValues()
     {
         return $this->hasManyThrough(AttributeValues::class, ProductAttribute::class, 'productId', 'attributeId');
     }
 
-    // Model Product
     public function attributes()
     {
         return $this->belongsToMany(Attributes::class, 'product_attribute', 'productId', 'attributeId');
@@ -61,4 +56,25 @@ class Products extends Model
     {
         return $this->belongsToMany(Types::class, 'product_types', 'productId');
     }
+
+    public function productCategory()
+    {
+        return $this->hasOne(ProductCategory::class, 'productId');
+    }
+
+    public function productType()
+    {
+        return $this->hasOne(ProductTypes::class, 'productId');
+    }
+
+    public function productMedia()
+    {
+        return $this->hasMany(ProductMedia::class, 'productId');
+    }
+
+    public function mainImage()
+    {
+        return $this->hasOne(ProductMedia::class, 'productId')->where('mainImage', 1);
+    }
+
 }

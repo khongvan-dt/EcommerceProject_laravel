@@ -126,13 +126,14 @@ Route::group(['middleware' => ['role:ADMIN'], 'prefix' => 'admin'], function () 
     Route::put('media/update/{id}/{productId}', [ProductMediaController::class, 'update'])->name('admin.media.update');
     Route::delete('/media/{id}/{productId}', [ProductMediaController::class, 'destroy'])->name('admin.media.destroy');
 
-    // Route for Product
-    Route::get('/products', [ProductsController::class, 'index'])->name('admin.products.index');
-    Route::get('/products/create', [ProductsController::class, 'create'])->name('admin.products.create');
-    Route::post('/products/store', [ProductsController::class, 'store'])->name('admin.products.store');
-    Route::get('/products/edit/{id}', [ProductsController::class, 'edit'])->name('admin.products.edit');
-    Route::put('products/update/{id}', [ProductsController::class, 'update'])->name('admin.products.update');
-    Route::delete('/products/{id}', [ProductsController::class, 'destroy'])->name('admin.products.destroy');
+    Route::prefix('products')->name('admin.products.')->group(function () {
+        Route::get('/', [ProductsController::class, 'index'])->name('index');
+        Route::get('/create', [ProductsController::class, 'create'])->name('create');
+        Route::post('/store', [ProductsController::class, 'store'])->name('store'); 
+        Route::get('/edit/{id}', [ProductsController::class, 'edit'])->name('edit');
+        Route::post('/store/{id}', [ProductsController::class, 'store'])->name('store.update'); 
+        Route::delete('/{id}', [ProductsController::class, 'destroy'])->name('destroy');
+    });
 
     // Route for ProductType
     Route::get('/productTypes', [ProductTypeController::class, 'index'])->name('admin.productTypes.index');

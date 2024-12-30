@@ -91,8 +91,8 @@ class CheckoutController extends Controller
                 'userId' => $user ? $user->id : null,
                 'paymentMethod' => $request->payment_method,
                 'totalPrice' => $request->totalPrice,
-                'discountAmount' => 0,
-                'voucherCode' => 0,
+                'discountAmount' => $request->discountAmount,
+                'voucherCode' => $request->voucherCode,
                 'status' => 'PENDING'
             ]);
 

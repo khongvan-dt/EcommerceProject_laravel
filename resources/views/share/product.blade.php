@@ -56,27 +56,25 @@
                                 <i class="fa fa-star-o"></i>
                                 <span> - 5 Reviews</span>
                             </div>
-
-
-    @if($product->discounts && $product->discounts->discountPercentage > 0)
-    <div class="price-container">
-    <h3 id="product-price" class="discounted-price">
-        {{ number_format($product->attributeValues->first()->priceOut * (1 - $product->discounts->discountPercentage/100) * 1000, 0, ',', '.') }}đ
-    </h3>
-    <div class="original-price-container">
-        <span class="original-price text-decoration-line-through">
-            {{ number_format($product->attributeValues->first()->priceOut * 1000, 0, ',', '.') }}đ
-        </span>
-        <span class="discount-badge">
-            -{{ $product->discounts->discountPercentage }}%
-        </span>
-    </div>
-</div>
-   @else
-       <h3 id="product-price">
-           {{ number_format($product->attributeValues->first()->priceOut * 1000, 0, ',', '.') }}đ
-       </h3>
-   @endif
+                            @if($product->discounts && $product->discounts->discountPercentage > 0)
+                                <div class="price-container">
+                                    <h3 id="product-price" class="discounted-price">
+                                        {{ number_format($product->attributeValues->first()->priceOut * (1 - $product->discounts->discountPercentage/100) * 1000, 0, ',', '.') }}đ
+                                    </h3>
+                                    <div class="original-price-container">
+                                        <span class="original-price text-decoration-line-through">
+                                            {{ number_format($product->attributeValues->first()->priceOut * 1000, 0, ',', '.') }}đ
+                                        </span>
+                                        <span class="discount-badge">
+                                            -{{ $product->discounts->discountPercentage }}%
+                                        </span>
+                                    </div>
+                                </div>
+                            @else
+                                <h3 id="product-price">
+                                    {{ number_format($product->attributeValues->first()->priceOut * 1000, 0, ',', '.') }}đ
+                                </h3>
+                            @endif
    
                             <div class="product__details__option">
                                 @foreach ($product->attributes as $attribute)
@@ -265,29 +263,36 @@
 
 
         function updatePrice() {
-            const selectedSize = document.querySelector('input[name="size"]:checked');
-            const selectedColor = document.querySelector('input[name="color"]:checked');
+    const selectedSize = document.querySelector('input[name="size"]:checked');
+    const selectedColor = document.querySelector('input[name="color"]:checked');
+    const discountPercentage = document.querySelector('.discount-badge')?.textContent.replace(/[-%]/g, '') || 0;
 
-            console.log('Selected Size:', selectedSize);
-            console.log('Selected Color:', selectedColor);
+    console.log('Selected Size:', selectedSize);
+    console.log('Selected Color:', selectedColor);
+    console.log('Discount Percentage:', discountPercentage);
 
-            let sizePrice = 0;
-            let colorPrice = 0;
-            if (selectedSize) {
-                sizePrice = parseFloat(selectedSize.getAttribute('data-price'));
-            }
+    let sizePrice = 0;
+    let colorPrice = 0;
+    
+    if (selectedSize) {
+        sizePrice = parseFloat(selectedSize.getAttribute('data-price'));
+    }
 
-            if (selectedColor) {
-                colorPrice = parseFloat(selectedColor.getAttribute('data-price'));
-            }
+    if (selectedColor) {
+        colorPrice = parseFloat(selectedColor.getAttribute('data-price'));
+    }
 
-            if (sizePrice > 0 && colorPrice > 0) {
-                const finalPrice = (sizePrice + colorPrice) / 2;
-                console.log('Final Price:', finalPrice);
+    if (sizePrice > 0 && colorPrice > 0) {
+        const originalPrice = (sizePrice + colorPrice) / 2;
+        const discountAmount = originalPrice * (discountPercentage / 100);
+        const finalPrice = originalPrice - discountAmount;
 
-                document.getElementById('product-price').innerText = new Intl.NumberFormat().format(finalPrice * 1000) +
-                    'đ';
-            }
-        }
+        console.log('Original Price:', originalPrice);
+        console.log('Discount Amount:', discountAmount);
+        console.log('Final Price:', finalPrice);
+
+        
+    }
+}
     </script>
 @endsection

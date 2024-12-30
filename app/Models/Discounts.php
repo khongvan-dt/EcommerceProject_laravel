@@ -15,9 +15,21 @@ class Discounts extends Model
         'productId',
         'discountPercentage',
         'startDate',
-        'endDate'
+        'endDate',
+        'status'
     ];
+   public function isValid()
+    {
+        $now = now();
+        return $now <= $this->endDate;  
+    }
 
+    public function updateStatusBasedOnDate()
+    {
+        $this->status = $this->isValid() ? 1 : 0;
+        $this->save();
+    }
+    
     public function product(){
         return $this->belongsTo(Products::class, 'productId');
     }

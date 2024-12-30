@@ -7,7 +7,7 @@
                 <div class="row align-items-center">
                     <div class="col-md-6">
                         <div class="title">
-                            <h2>Add New Discount</h2>
+                            <h2>Edit Discount</h2>
                         </div>
                     </div>
                     <div class="col-md-6">

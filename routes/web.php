@@ -44,6 +44,7 @@ Route::post('/register', [AuthController::class, 'checkRegister'])->name('checkR
 
 //Shared routes
 Route::get('/', [DashboardUserController::class, 'index'])->name('dashboard');
+
 Route::get('/shop', [DashboardUserController::class, 'shop'])->name('shop');
 Route::get('/contact', [DashboardUserController::class, 'contact'])->name('contact');
 Route::get('/about', [DashboardUserController::class, 'about'])->name('about');

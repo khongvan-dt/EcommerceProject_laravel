@@ -84,7 +84,7 @@
                                                 <td class="min-width">
                                                     @if($product->mainImage)
                                                         <a href="{{ route('admin.media.index', $product->id) }}">
-                                                            <img src="{{ asset('storage/' . $product->mainImage->mediaUrl) }}" alt="Main Image" style="width: 100px; height: auto;">
+                                                            <img src="{{ asset('storage/' . $product->mainImage->mediaUrl) }}" alt="{{$product->name}}" style="width: 100px; height: auto;">
                                                         </a>
                                                     @else
                                                         <p>No Image Available</p>

@@ -56,9 +56,28 @@
                                 <i class="fa fa-star-o"></i>
                                 <span> - 5 Reviews</span>
                             </div>
-                            <h3 id="product-price">
-                                {{ number_format($product->attributeValues->first()->priceOut * 1000, 0, ',', '.') }}đ</h3>
-                            <!-- Giá mặc định ban đầu -->
+
+
+    @if($product->discounts && $product->discounts->discountPercentage > 0)
+    <div class="price-container">
+    <h3 id="product-price" class="discounted-price">
+        {{ number_format($product->attributeValues->first()->priceOut * (1 - $product->discounts->discountPercentage/100) * 1000, 0, ',', '.') }}đ
+    </h3>
+    <div class="original-price-container">
+        <span class="original-price text-decoration-line-through">
+            {{ number_format($product->attributeValues->first()->priceOut * 1000, 0, ',', '.') }}đ
+        </span>
+        <span class="discount-badge">
+            -{{ $product->discounts->discountPercentage }}%
+        </span>
+    </div>
+</div>
+   @else
+       <h3 id="product-price">
+           {{ number_format($product->attributeValues->first()->priceOut * 1000, 0, ',', '.') }}đ
+       </h3>
+   @endif
+   
                             <div class="product__details__option">
                                 @foreach ($product->attributes as $attribute)
                                     @if ($attribute->name == 'Size')

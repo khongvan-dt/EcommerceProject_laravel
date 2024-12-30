@@ -17,11 +17,13 @@ class ProductsController extends Controller
 {
     public function index()
     {
-        $products = Products::with('mainImage')
-        ->where('status', 0)
-        ->get();
-    return view('admin.products.index', compact('products'));
+        $products = Products::with(['mainImage', 'discounts'])
+            ->where('status', 0)
+            ->get();
+        
+        return view('admin.products.index', compact('products'));
     }
+
 
     public function create()
     {

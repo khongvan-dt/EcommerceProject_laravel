@@ -101,8 +101,6 @@ class BlogController extends Controller
         return redirect()->route('admin.blogs.index')->with('success', 'Blog unpublished successfully');
     }
 
-    
-
     public function destroy($id){
         $blog = Blogs::find($id);
         $blog->status = 2;

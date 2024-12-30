@@ -289,6 +289,7 @@
 
         @section('layouts.footer_admin')
         </main>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
         <script src="{{ asset('assets/admin/js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('assets/admin/js/Chart.min.js') }}"></script>
@@ -299,7 +300,6 @@
         <script src="{{ asset('assets/admin/js/world-merc.js') }}"></script>
         <script src="{{ asset('assets/admin/js/polyfill.js') }}"></script>
         <script src="{{ asset('assets/admin/js/main.js') }}"></script>
-
 
 
         <script>

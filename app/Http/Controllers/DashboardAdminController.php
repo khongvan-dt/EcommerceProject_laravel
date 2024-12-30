@@ -82,8 +82,11 @@ class DashboardAdminController extends Controller implements FromCollection, Wit
         $totalUsersLast30Days = $this->getTotalUsers(30);
         $totalUsersPrevious30Days = $this->getTotalUsers(60, 30);
         $percentageUsers = $this->calculatePercentageChange($totalUsersLast30Days, $totalUsersPrevious30Days);
-        
-        $timeframe = $request->input('timeframe', 'weekly');
+        $getBestSelling30Days = $this->getBestSelling30Days();
+        $getBestSelling7Days = $this->getBestSelling7Days();
+        $getBestSellingThisYear= $this->getBestSellingThisYear();
+
+        $timeframe = $request->input('timeframe', 'monthly');
         $chartData = $this->getSalesData($timeframe);
 
         if ($request->has('export')) {
@@ -106,10 +109,92 @@ class DashboardAdminController extends Controller implements FromCollection, Wit
             'totalUsersLast30Days' => $totalUsersLast30Days,
             'percentageUsers' => $percentageUsers,
             'chartData' => $chartData,
+            'timeframe' => $timeframe, 
+            'getBestSelling30Days' => $getBestSelling30Days,
+            'getBestSellingThisYear'=> $getBestSellingThisYear,
+            'getBestSelling7Days' => $getBestSelling7Days
         ]);
     }
-
-   
+    
+    public function getBestSelling30Days()
+    {
+        return DB::table('products as p')
+            ->select([
+                'p.id',
+                'p.name as product_name',
+                'c.name as category_name',
+                'av.priceOut',
+                'pm.mediaUrl',
+                DB::raw('SUM(od.quantity) as total_sold')
+            ])
+            ->join('order_details as od', 'p.id', '=', 'od.productId')
+            ->join('orders as o', 'od.orderId', '=', 'o.id')
+            ->join('product_category as pc', 'p.id', '=', 'pc.productId')
+            ->join('categories as c', 'pc.categoryId', '=', 'c.id')
+            ->join('product_attribute as pa', 'p.id', '=', 'pa.productId')
+            ->join('attribute_values as av', 'pa.attributeId', '=', 'av.attributeId')
+            ->join('product_media as pm', 'p.id', '=', 'pm.productId')
+            ->where('o.status', '=', 'COMPLETED')
+            ->where('pm.mainImage', '=', 1)
+            ->where('o.created_at', '>=', DB::raw('DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)'))
+            ->where('o.created_at', '<=', DB::raw('CURRENT_DATE()'))
+            ->groupBy('p.id', 'p.name', 'c.name', 'av.priceOut', 'pm.mediaUrl')
+            ->orderBy('total_sold', 'desc')
+            ->first();
+    }
+    
+    public function getBestSelling7Days()
+    {
+        return DB::table('products as p')
+            ->select([
+                'p.id',
+                'p.name as product_name',
+                'c.name as category_name',
+                'av.priceOut',
+                'pm.mediaUrl',
+                DB::raw('SUM(od.quantity) as total_sold')
+            ])
+            ->join('order_details as od', 'p.id', '=', 'od.productId')
+            ->join('orders as o', 'od.orderId', '=', 'o.id')
+            ->join('product_category as pc', 'p.id', '=', 'pc.productId')
+            ->join('categories as c', 'pc.categoryId', '=', 'c.id')
+            ->join('product_attribute as pa', 'p.id', '=', 'pa.productId')
+            ->join('attribute_values as av', 'pa.attributeId', '=', 'av.attributeId')
+            ->join('product_media as pm', 'p.id', '=', 'pm.productId')
+            ->where('o.status', '=', 'COMPLETED')
+            ->where('pm.mainImage', '=', 1)
+            ->where('o.created_at', '>=', DB::raw('DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)'))
+            ->where('o.created_at', '<=', DB::raw('CURRENT_DATE()'))
+            ->groupBy('p.id', 'p.name', 'c.name', 'av.priceOut', 'pm.mediaUrl')
+            ->orderBy('total_sold', 'desc')
+            ->first();
+    }
+    
+    public function getBestSellingThisYear()
+    {
+        return DB::table('products as p')
+            ->select([
+                'p.id',
+                'p.name as product_name',
+                'c.name as category_name',
+                'av.priceOut',
+                'pm.mediaUrl',
+                DB::raw('SUM(od.quantity) as total_sold')
+            ])
+            ->join('order_details as od', 'p.id', '=', 'od.productId')
+            ->join('orders as o', 'od.orderId', '=', 'o.id')
+            ->join('product_category as pc', 'p.id', '=', 'pc.productId')
+            ->join('categories as c', 'pc.categoryId', '=', 'c.id')
+            ->join('product_attribute as pa', 'p.id', '=', 'pa.productId')
+            ->join('attribute_values as av', 'pa.attributeId', '=', 'av.attributeId')
+            ->join('product_media as pm', 'p.id', '=', 'pm.productId')
+            ->where('o.status', '=', 'COMPLETED')
+            ->where('pm.mainImage', '=', 1)
+            ->whereYear('o.created_at', '=', DB::raw('YEAR(CURRENT_DATE())'))
+            ->groupBy('p.id', 'p.name', 'c.name', 'av.priceOut', 'pm.mediaUrl')
+            ->orderBy('total_sold', 'desc')
+            ->first();
+    }
 
     private function getTotalPriceInMonth($month, $year) {
         return AttributeValues::whereMonth('created_at', $month)

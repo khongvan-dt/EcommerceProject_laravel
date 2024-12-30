@@ -23,7 +23,33 @@
     <link rel="stylesheet" href="{{ asset('assets/share/css/owl.carousel.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ asset('assets/share/css/slicknav.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ asset('assets/share/css/style.css') }}" type="text/css">
+    <style>
+   .price-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
 
+.discounted-price {
+    color: #dc2626;
+    margin: 0;
+}
+
+.original-price {
+    color: #6b7280;
+    font-size: 0.9em;
+    text-decoration: line-through;  
+}
+
+.discount-badge {
+    background-color: #dc2626;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8em;
+}
+   </style>
 </head>
 
 <body>

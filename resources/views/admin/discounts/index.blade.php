@@ -93,9 +93,14 @@
                                                 </td>
                                                 <td class="min-width">
                                                     @if ($discount->status == 0)
-                                                        <span class="status-btn active-btn">Active</span>
+                                                     <span class="status-btn inactive-btn inactive ">Inactive</span>
+                                                     <style>
+                                                        .inactive {
+                                                            color: #dc2626;
+                                                        }
+                                                     </style>
                                                     @else
-                                                        <span class="status-btn inactive-btn">Inactive</span>
+                                                        <span class="status-btn inactive-btn">Active</span>
                                                     @endif  
                                                 </td>
                                                 <td>

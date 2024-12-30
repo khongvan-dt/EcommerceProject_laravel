@@ -76,5 +76,10 @@ class Products extends Model
     {
         return $this->hasOne(ProductMedia::class, 'productId')->where('mainImage', 1);
     }
+    
 
+    public function discounts()
+    {
+        return $this->hasOne(Discounts::class, 'productId');
+    }
 }

@@ -115,6 +115,10 @@ class DashboardUserController extends Controller
             'attributeValues' => function ($query) {
                 $query->select('attribute_values.id', 'attribute_values.name', 'attribute_values.priceOut', 'attribute_values.stock', 'attribute_values.attributeId');
             },
+            'discounts' => function($query) {
+               $query->select('discounts.productId', 'discounts.discountPercentage')
+                     ->where('status', 1);
+           }
         ])
             ->where('id', $id)
             ->firstOrFail();

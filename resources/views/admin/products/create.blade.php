@@ -121,10 +121,7 @@
                                 <div class="input-style-2">
                                     <label>Choose Additional Images(<span id="imageCount">0</span>/10)</label>
                                     <div class="current-images mb-3 d-flex flex-wrap">
-                                        
-                                          
                                     </div>
-                                    
                                     <div class="file-input-container">
                                         <div class="selected-images d-flex flex-wrap" id="selectedImages">
                                         </div>

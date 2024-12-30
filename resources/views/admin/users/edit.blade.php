@@ -30,8 +30,7 @@
             <div class="form-elements-wrapper">
                 <div class="row">
                     <div class="col-lg-12">
-                        <!-- input style start -->
-                        <div class="card-style">
+                         <div class="card-style">
                             <form action="{{ route('admin.users.update', $user->id) }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 @method('PUT')
@@ -74,14 +73,18 @@
                                 </div>
                                 <div class="input-style-2">
                                     <label>Avatar</label>
-                                    <input type="file" name="avatar" />
-                                    @if ($user->avatar)
-                                        <img src="{{ asset('storage/' . $user->avatar) }}" alt="Avatar" style="width: 50px; height: 50px; margin-top: 10px;">
-                                    @endif
+                                    <div id="avatarPreview" class="mt-2">
+                                        @if ($user->avatar)
+                                            <img src="{{ asset('storage/' . $user->avatar) }}" alt="Avatar" class="avatar-preview img_input">
+                                        @endif
+                                    </div>
+                                    <input type="file" name="avatar" id="avatarInput" accept="image/*" 
+                                        onchange="previewImage(this, 'avatarPreview', 'avatar-preview')" />
                                     @error('avatar')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
-                                </div>
+                                </div>                                       
+
                                 <div class="select-style-1">
                                     <label>Role</label>
                                     <div class="select-position">

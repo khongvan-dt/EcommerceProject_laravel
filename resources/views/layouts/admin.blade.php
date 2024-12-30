@@ -16,9 +16,12 @@
     <link rel="stylesheet" href="{{ asset('assets/admin/css/fullcalendar.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/admin/css/fullcalendar.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/admin/css/main.css') }}" />
-    <script src="{{ asset('assets/admin/js/img_product.js') }}"></script>
 
     <link rel="stylesheet" href="{{ asset('assets/admin/css/img_input_product.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/admin/css/img_input.css') }}" />
+    <script src="{{ asset('assets/admin/js/img_product.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/avt.js') }}"></script>
+
     </head>
 
 <body>
@@ -262,7 +265,7 @@
                                         </li>
                                         <li class="divider"></li>
                                         <li>
-                                            <a href="#0">
+                                            <a href="{{ route('admin.users.edit',Auth::user()->id) }}">
                                                 <i class="lni lni-user"></i> View Profile
                                             </a>
                                         </li>

@@ -64,7 +64,8 @@
 
                                 <div class="input-style-3">
                                     <label>Blog Image</label>
-                                    <input type="file" name="image" accept="image/*" />
+                                    <div id="imagePreview" style="min-height: 0;"></div>
+                                    <input type="file" name="image" accept="image/*" onchange="previewImage(this, 'imagePreview', 'preview-image')" />
                                     @error('image')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror

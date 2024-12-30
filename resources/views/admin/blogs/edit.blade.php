@@ -54,12 +54,14 @@
                                 </div>
 
                                 <div class="input-style-3">
-                                    <label>Blog Image</label>
-                                    @if($blog->image)
-                                        <img src="{{ asset('storage/' . $blog->image) }}" alt="Current Image" style="width: 100px; height: auto;">
-                                    @endif
-                                    <input type="file" name="image" accept="image/*" />
-                                </div>
+    <label>Blog Image</label>
+    <div id="imagePreview" class="mt-2">
+        @if($blog->image)
+            <img src="{{ asset('storage/' . $blog->image) }}" alt="Blog Image" class="preview-image">
+        @endif
+    </div>
+    <input type="file" name="image" accept="image/*" onchange="previewImage(this, 'imagePreview', 'preview-image')" />
+</div>
 
                                 <div class="card-style mb-30">
                                     <h6 class="mb-25">Content</h6>

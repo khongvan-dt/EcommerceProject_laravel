@@ -6,8 +6,8 @@ use App\Models\Brands;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
-
-class BrandController extends Controller
+use Illuminate\Support\Facades\File;
+ class BrandController extends Controller
 {
     public function index()
     {
@@ -28,28 +28,29 @@ class BrandController extends Controller
             'slug' => 'required|max:255|unique:brands,slug',
             'description' => 'nullable',
         ]);
-
-        if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('brands', 'public');
-            $validatedData['logo'] = $logoPath;
+    
+         $storagePath = storage_path('app/public/brands');
+        if (!File::exists($storagePath)) {
+            File::makeDirectory($storagePath, 0775, true);
         }
-
+    
         $brand = new Brands();
         $brand->name = $validateData['name'];
-        $brand->logo = $validatedData['logo'];
         $brand->slug = $validateData['slug'];
         $brand->description = $validateData['description'];
+    
+        if ($request->hasFile('logo')) {
+            $logo = $request->file('logo');
+            $logoName = $logo->getClientOriginalName();
+            
+             $logo->move(public_path('storage/brands'), $logoName);
+            $brand->logo = 'brands/' . $logoName;
+        }
+    
         $brand->save();
-
         return redirect()->route('admin.brands.index')->with('success', 'Brand added successfully.');
     }
-
-    public function edit($id)
-    {
-        $brand = Brands::find($id);
-        return view('admin.brands.edit', compact('brand'));
-    }
-
+    
     public function update(Request $request, $id)
     {
         $validateData = $request->validate([
@@ -58,27 +59,33 @@ class BrandController extends Controller
             'description' => 'nullable',
             'slug' => ['required', 'max:255', Rule::unique('brands')->ignore($id)],
         ]);
-
-        $brand = Brands::find($id);
-
+    
+        $brand = Brands::findOrFail($id);
         $brand->name = $validateData['name'];
         $brand->description = $validateData['description'];
         $brand->slug = $validateData['slug'];
-
+    
         if ($request->hasFile('logo')) {
-            if ($brand->logo && Storage::exists($brand->logo)) {
-                Storage::delete($brand->logo);
+             if ($brand->logo && File::exists(public_path('storage/' . $brand->logo))) {
+                File::delete(public_path('storage/' . $brand->logo));
             }
-
-            $logoPath = $request->file('logo')->store('brands', 'public');
-            $brand->logo = $logoPath;
+    
+            $logo = $request->file('logo');
+            $logoName = $logo->getClientOriginalName();
+            
+             $logo->move(public_path('storage/brands'), $logoName);
+            $brand->logo = 'brands/' . $logoName;
         }
-
+    
         $brand->save();
-
         return redirect()->route('admin.brands.index')->with('success', 'Brand updated successfully.');
     }
 
+    public function edit($id)
+    {
+        $brand = Brands::find($id);
+        return view('admin.brands.edit', compact('brand'));
+    }
 
     public function destroy($id)
     {

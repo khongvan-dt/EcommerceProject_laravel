@@ -26,8 +26,7 @@
                     </div>
                 </div>
             </div>
-            <!-- end row -->
-            @if ($errors->any())
+             @if ($errors->any())
                 <div class="alert alert-danger">
                     <ul>
                         @foreach ($errors->all() as $error)
@@ -36,41 +35,39 @@
                     </ul>
                 </div>
             @endif
-            <!-- end row -->
-            <div class="form-elements-wrapper">
+             <div class="form-elements-wrapper">
                 <div class="row">
                     <form method="POST" action="{{route('admin.brands.update', $brand->id)}}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="col-lg-12">
-                            <!-- input style start -->
-                            <div class="card-style">
+                             <div class="card-style">
                                 <div class="input-style-1">
                                     <label>Brand Name</label>
                                     <input type="text" placeholder="Brand Name" name="name"
                                         value="{{ $brand->name }}" required />
                                 </div>
-                                <!-- end input -->
-                                <div class="input-style-2">
+                                 <div class="input-style-2">
                                     <label>Brand Slug</label>
                                     <input type="text" placeholder="Slug Brand" name="slug"
                                         value="{{ $brand->slug }}" />
                                 </div>
-                                <div class="input-style-3">
-                                    <label>Brand Logo</label>
-                                    <input type="file" name="logo" accept="image/*" />
+                             <div class="input-style-3">
+                                <label>Brand Logo</label>
+                                <div id="logoPreview" class="mt-2">
+                                    @if($brand->logo)
+                                        <img src="{{ asset('storage/' . $brand->logo) }}" alt="Brand Logo" class="logo-preview img_input">
+                                    @endif
                                 </div>
-                                <div class="card-style">
-                                    <img src="{{ asset('storage/' . $brand->logo) }}" alt="Brand Logo"
-                                        class="img-fluid">
-                                </div>
+                                <input type="file" name="logo" accept="image/*" onchange="previewImage(this, 'logoPreview', 'logo-preview')" />
+                            </div>                                                                               
+                               
                                 <div class="card-style mb-30">
                                     <h6 class="mb-25">Description</h6>
                                     <div class="input-style-3">
                                         <textarea placeholder="Brand Description" rows="5" name="description">{{ $brand->description }}</textarea>
                                         <span class="icon"><i class="lni lni-text-format"></i></span>
                                     </div>
-                                    <!-- end textarea -->
                                 </div>
                                 <div class="justify-content-center list-unstyled d-flex gap-3">
                                     <li class="">

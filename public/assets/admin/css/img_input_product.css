@@ -1,0 +1,27 @@
+.file-input-container {
+    margin-top: 10px;
+}
+.selected-images {
+    margin-top: 10px;
+    gap: 10px;
+}
+.image-item {
+    margin: 5px;
+}
+.image-item img {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 3px;
+    object-fit: cover;
+}
+.d-flex {
+        display: flex;
+}
+.flex-wrap {
+    flex-wrap: wrap;
+}
+#mainImagePreview{
+    margin-bottom: 10px;
+}
+ 
+ 

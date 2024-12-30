@@ -1,7 +1,6 @@
 @extends('layouts.admin')
-
 @section('content')
-<section class="section">
+ <section class="section">
     <div class="container-fluid">
         <div class="title-wrapper pt-30">
             <div class="row align-items-center">
@@ -92,20 +91,28 @@
 
                             <div class="input-style-2">
                                 <label>Current Main Image</label>
-                                @if($product->mainImage)
-                                    <img src="{{ Storage::url($product->mainImage->mediaUrl) }}" width="200">
-                                @endif
-                                <input type="file" name="mainImage" />
+                                <div id="mainImagePreview">
+                                    @if($product->mainImage)
+                                        <img src="{{ Storage::url($product->mainImage->mediaUrl) }}" width="200">
+                                    @endif
+                                </div>
+                                <input type="file" name="mainImage" id="mainImage" accept="image/*" onchange="previewMainImage(this)"/>
                             </div>
-
-                            <div class="input-style-2">
-                                <label>Additional Images</label>
-                                <div class="current-images mb-3">
+                             <div class="input-style-2">
+                                <label>Additional Images (<span id="imageCount">0</span>/10)</label>
+                                <div class="current-images mb-3 d-flex flex-wrap">
                                     @foreach($product->productMedia->where('mainImage', 0) as $media)
-                                        <img src="{{ Storage::url($media->mediaUrl) }}" width="100" class="mr-2">
+                                        <div class="image-item">
+                                            <img src="{{ Storage::url($media->mediaUrl) }}" width="100">
+                                        </div>
                                     @endforeach
                                 </div>
-                                <input type="file" name="additionalImages[]" multiple />
+                                
+                                <div class="file-input-container">
+                                    <div class="selected-images d-flex flex-wrap" id="selectedImages">
+                                    </div>
+                                    <input type="file" name="additionalImages[]" id="additionalImages" multiple accept="image/*" onchange="previewImages(this)"/>
+                                </div>
                             </div>
 
                             <div class="button-group">

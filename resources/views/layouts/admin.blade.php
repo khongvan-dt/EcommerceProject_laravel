@@ -16,7 +16,10 @@
     <link rel="stylesheet" href="{{ asset('assets/admin/css/fullcalendar.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/admin/css/fullcalendar.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/admin/css/main.css') }}" />
-</head>
+    <script src="{{ asset('assets/admin/js/img_product.js') }}"></script>
+
+    <link rel="stylesheet" href="{{ asset('assets/admin/css/img_input_product.css') }}" />
+    </head>
 
 <body>
     <!-- ======== Preloader =========== -->
@@ -293,6 +296,7 @@
         <script src="{{ asset('assets/admin/js/world-merc.js') }}"></script>
         <script src="{{ asset('assets/admin/js/polyfill.js') }}"></script>
         <script src="{{ asset('assets/admin/js/main.js') }}"></script>
+
 
 
         <script>

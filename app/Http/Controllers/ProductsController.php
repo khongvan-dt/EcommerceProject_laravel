@@ -31,112 +31,104 @@ class ProductsController extends Controller
         return view('admin.products.create', compact('brands', 'categories', 'types'));
     }
     public function store(Request $request, $id = null)
-{
-    try {
-        // Validate the request
-        $validatedData = $request->validate([
-            'name' => 'required|max:255',
-            'description' => 'required',
-            'slug' => $id ? "required|unique:products,slug,{$id}|max:255" : 'required|unique:products,slug|max:255',
-            'brandId' => 'required|exists:brands,id',
-            'categoryId' => 'required|exists:categories,id', 
-            'typeId' => 'required|exists:types,id',
-            'mainImage' => $id ? 'nullable|image|mimes:webp,jpeg,png,jpg,gif|max:2048' : 'required|image|mimes:webp,jpeg,png,jpg,gif|max:2048',
-            'additionalImages.*' => 'nullable|image|mimes:webp,jpeg,png,jpg,gif|max:2048',
-        ]);
-
-        // Create storage directory if it doesn't exist
-        $storagePath = storage_path('app/public/products/images');
-        if (!File::exists($storagePath)) {
-            File::makeDirectory($storagePath, 0775, true);
-        }
-
-        // Create or update product
-        $product = Products::findOrNew($id);
-        $product->name = $validatedData['name'];
-        $product->description = $validatedData['description'];
-        $product->slug = $validatedData['slug'];
-        $product->brandId = $validatedData['brandId'];
-        $product->save();
-
-        // Update product categories
-        ProductCategory::updateOrCreate(
-            ['productId' => $product->id],
-            ['categoryId' => $validatedData['categoryId']]
-        );
-
-        // Update product types
-        ProductTypes::updateOrCreate(
-            ['productId' => $product->id],
-            ['typeId' => $validatedData['typeId']]
-        );
-
-        // Handle main image upload
-        if ($request->hasFile('mainImage')) {
-            // Delete existing main image if it exists
-            $currentMainImage = ProductMedia::where('productId', $product->id)
-                ->where('mainImage', 1)
-                ->first();
-                
-            if ($currentMainImage) {
-                Storage::disk('public')->delete($currentMainImage->mediaUrl);
-                $currentMainImage->delete();
-            }
-
-            $mainImageFile = $request->file('mainImage');
-            $mainImageName = $mainImageFile->getClientOriginalName();
-            
-            // Move file with original name
-            $mainImageFile->move(public_path('storage/products/images'), $mainImageName);
-            
-            // Create main image record with the original path
-            $productMedia = new ProductMedia();
-            $productMedia->productId = $product->id;
-            $productMedia->mediaUrl = 'products/images/' . $mainImageName;
-            $productMedia->mediaType = 'image';
-            $productMedia->mainImage = 1;
-            $productMedia->save();
-        }
-
-        // Handle additional images upload
-        if ($request->hasFile('additionalImages')) {
-            // Delete existing additional images if updating
-            if ($id) {
-                ProductMedia::where('productId', $product->id)
+    {
+        try {
+            if ($request->hasFile('additionalImages')) {
+                $currentImagesCount = ProductMedia::where('productId', $id)
                     ->where('mainImage', 0)
-                    ->get()
-                    ->each(function($media) {
-                        Storage::disk('public')->delete($media->mediaUrl);
-                        $media->delete();
-                    });
-            }
-
-            // Upload new additional images
-            foreach ($request->file('additionalImages') as $image) {
-                $imageName = $image->getClientOriginalName();
+                    ->count();
+                $newImagesCount = count($request->file('additionalImages'));
                 
-                // Move file with original name
-                $image->move(public_path('storage/products/images'), $imageName);
-                
-                $additionalMedia = new ProductMedia();
-                $additionalMedia->productId = $product->id;
-                $additionalMedia->mediaUrl = 'products/images/' . $imageName;
-                $additionalMedia->mediaType = 'image';
-                $additionalMedia->mainImage = 0;
-                $additionalMedia->save();
+                if (($currentImagesCount + $newImagesCount) > 10) {
+                    return redirect()
+                        ->back()
+                        ->withInput()
+                        ->with('error', 'Total number of images cannot exceed 10. Current images: ' . $currentImagesCount);
+                }
             }
-        }
-
-        $message = $id ? 'Product updated successfully.' : 'Product created successfully.';
-        return redirect()->route('admin.products.index')->with('success', $message);
-
-    } catch (\Exception $e) {
-         return redirect()
-            ->back()
-            ->withInput()
-            ->with('error', 'Error saving product: ' . $e->getMessage());
+    
+            $validatedData = $request->validate([
+                'name' => 'required|max:255',
+                'description' => 'required',
+                'slug' => $id ? "required|unique:products,slug,{$id}|max:255" : 'required|unique:products,slug|max:255',
+                'brandId' => 'required|exists:brands,id',
+                'categoryId' => 'required|exists:categories,id', 
+                'typeId' => 'required|exists:types,id',
+                'mainImage' => $id ? 'nullable|image|mimes:webp,jpeg,png,jpg,gif|max:2048' : 'required|image|mimes:webp,jpeg,png,jpg,gif|max:2048',
+                'additionalImages' => 'nullable|array|max:10',  
+                'additionalImages.*' => 'nullable|image|mimes:webp,jpeg,png,jpg,gif|max:2048',
+            ]);
+    
+            $storagePath = storage_path('app/public/products/images');
+            if (!File::exists($storagePath)) {
+                File::makeDirectory($storagePath, 0775, true);
+            }
+    
+            $product = Products::findOrNew($id);
+            $product->name = $validatedData['name'];
+            $product->description = $validatedData['description'];
+            $product->slug = $validatedData['slug'];
+            $product->brandId = $validatedData['brandId'];
+            $product->save();
+    
+            ProductCategory::updateOrCreate(
+                ['productId' => $product->id],
+                ['categoryId' => $validatedData['categoryId']]
+            );
+    
+            ProductTypes::updateOrCreate(
+                ['productId' => $product->id],
+                ['typeId' => $validatedData['typeId']]
+            );
+    
+             if ($request->hasFile('mainImage')) {
+                $currentMainImage = ProductMedia::where('productId', $product->id)
+                    ->where('mainImage', 1)
+                    ->first();
+                    
+                if ($currentMainImage) {
+                    if(File::exists(public_path('storage/' . $currentMainImage->mediaUrl))) {
+                        File::delete(public_path('storage/' . $currentMainImage->mediaUrl));
+                    }
+                    $currentMainImage->delete();
+                }
+    
+                $mainImageFile = $request->file('mainImage');
+                $mainImageName = time() . '_main_' . $mainImageFile->getClientOriginalName();
+                $mainImageFile->move(public_path('storage/products/images'), $mainImageName);
+                
+                $productMedia = new ProductMedia();
+                $productMedia->productId = $product->id;
+                $productMedia->mediaUrl = 'products/images/' . $mainImageName;
+                $productMedia->mediaType = 'image';
+                $productMedia->mainImage = 1;
+                $productMedia->save();
+            }
+ 
+if ($request->hasFile('additionalImages')) {
+     foreach ($request->file('additionalImages') as $image) {
+        $imageName = time() . '_' . $image->getClientOriginalName();
+        $image->move(public_path('storage/products/images'), $imageName);
+        
+        $additionalMedia = new ProductMedia();
+        $additionalMedia->productId = $product->id;
+        $additionalMedia->mediaUrl = 'products/images/' . $imageName;
+        $additionalMedia->mediaType = 'image';
+        $additionalMedia->mainImage = 0;
+        $additionalMedia->save();
     }
 }
+    
+            $message = $id ? 'Product updated successfully.' : 'Product created successfully.';
+            return redirect()->route('admin.products.index')->with('success', $message);
+    
+        } catch (\Exception $e) {
+             return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Error saving product: ' . $e->getMessage());
+        }
+    }
 
     public function edit($id)
     {

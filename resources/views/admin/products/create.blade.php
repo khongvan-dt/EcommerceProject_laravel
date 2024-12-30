@@ -110,19 +110,28 @@
                                 </div>
                                 <div class="input-style-2">
                                     <label>Choose Main Image</label>
-                                    <input type="file" name="mainImage" required />
+                                    <div id="mainImagePreview">
+                                         <img src="" width="200">
+                                    </div>
+                                    <input type="file" name="mainImage" id="mainImage" accept="image/*" onchange="previewMainImage(this)" required/>
                                     @error('mainImage')
                                         <div class="text-danger mt-1">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="input-style-2">
-                                    <label>Choose Additional Images</label>
-                                    <input type="file" name="additionalImages[]" multiple />
-                                    <small>(Maximum 10 images)</small>
-                                    @error('additionalImages')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
+                                    <label>Choose Additional Images(<span id="imageCount">0</span>/10)</label>
+                                    <div class="current-images mb-3 d-flex flex-wrap">
+                                        
+                                          
+                                    </div>
+                                    
+                                    <div class="file-input-container">
+                                        <div class="selected-images d-flex flex-wrap" id="selectedImages">
+                                        </div>
+                                        <input type="file" name="additionalImages[]" id="additionalImages" multiple accept="image/*" onchange="previewImages(this)"/>
+                                    </div>
                                 </div>
+                                 
                                 <div class="justify-content-center list-unstyled d-flex gap-3">
                                     <li>
                                         <button type="submit" class="main-btn success-btn rounded-full btn-hover">Save</button>

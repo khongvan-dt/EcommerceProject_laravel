@@ -1,61 +1,97 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\AttributeValues;
 use App\Models\OrderDetails;
 use App\Models\Orders;
 use App\Models\Products;
 use App\Models\User;
+use App\Models\Vouchers;
+use App\Models\Discounts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class CheckoutController extends Controller
 {
     public function checkout()
-    {
-        // Decode cart data from the cookie, with a fallback to an empty array
-        $cart = json_decode(Cookie::get('cartData', '[]'), true);
+{
+    $cart = json_decode(Cookie::get('cartData', '[]'), true);
 
-        if (empty($cart)) {
-            return view('share.checkout', ['cartIndex' => [], 'subTotal' => 0]);
-        }
-
-        // Fetch products, colors, and sizes from the database
-        $products = Products::whereIn('id', array_column($cart, 'productId'))->get();
-        $colors = AttributeValues::whereIn('id', array_column($cart, 'colorId'))->get();
-        $sizes = AttributeValues::whereIn('id', array_column($cart, 'sizeId'))->get();
-
-        $cartIndex = [];
-        $subTotal = 0;
-
-        foreach ($cart as $cartItem) {
-            $product = $products->firstWhere('id', $cartItem['productId']);
-            $color = $colors->firstWhere('id', $cartItem['colorId']);
-            $size = $sizes->firstWhere('id', $cartItem['sizeId']);
-
-            // Skip if any required data is missing
-            if (!$product || !$color || !$size) {
-                continue;
-            }
-
-            $price = ($color->priceOut + $size->priceOut) / 2;
-            $subTotal += $price * $cartItem['quantity'];
-
-            $cartIndex[] = [
-                'product' => $product,
-                'color' => $color,
-                'size' => $size,
-                'price' => $price,
-                'quantity' => $cartItem['quantity'],
-            ];
-        }
-
-        return view('share.checkout', compact('cartIndex', 'subTotal'));
+    if (empty($cart)) {
+        return view('share.checkout', ['cartIndex' => [], 'subTotal' => 0]);
     }
+
+    $products = Products::whereIn('id', array_column($cart, 'productId'))->get();
+    $colors = AttributeValues::whereIn('id', array_column($cart, 'colorId'))->get();
+    $sizes = AttributeValues::whereIn('id', array_column($cart, 'sizeId'))->get();
+
+     $discounts = Discounts::whereIn('productId', array_column($cart, 'productId'))
+        ->where('status', 1)
+        ->get();
+
+    $cartIndex = [];
+    $subTotal = 0;
+
+    foreach ($cart as $cartItem) {
+        $product = $products->firstWhere('id', $cartItem['productId']);
+        $color = $colors->firstWhere('id', $cartItem['colorId']);
+        $size = $sizes->firstWhere('id', $cartItem['sizeId']);
+
+        if (!$product || !$color || !$size) {
+            continue;
+        }
+
+         $price = ($color->priceOut + $size->priceOut) / 2;
+
+         $productDiscount = $discounts->firstWhere('productId', $cartItem['productId']);
+        if ($productDiscount) {
+            $price = $price - ($price * $productDiscount->discountPercentage / 100);
+        }
+
+        $itemTotal = $price * $cartItem['quantity'];
+        $subTotal += $itemTotal;
+
+        $cartIndex[] = [
+            'product' => $product,
+            'color' => $color,
+            'size' => $size,
+            'price' => $price,
+            'originalPrice' => ($color->priceOut + $size->priceOut) / 2,
+            'productDiscount' => $productDiscount ? $productDiscount->discountPercentage : 0,
+            'quantity' => $cartItem['quantity'],
+            'itemTotal' => $itemTotal
+        ];
+    }
+
+     $grandTotal = $subTotal;
+    $voucherDiscount = 0;
+    $appliedVoucher = null;
+
+    if (session()->has('applied_voucher')) {
+        $voucherCode = session('applied_voucher');
+        $voucher = Vouchers::where('code', $voucherCode)
+            ->where('status', 'ACTIVE')
+            ->first();
+
+        if ($voucher) {
+            if (!$voucher->minPurchaseAmount || $subTotal >= $voucher->minPurchaseAmount) {
+                $voucherDiscount = ($subTotal * $voucher->discountPercentage) / 100;
+                $grandTotal = $subTotal - $voucherDiscount;
+                $appliedVoucher = $voucher;
+            }
+        }
+    }
+
+    return view('share.checkout', compact(
+        'cartIndex',
+        'subTotal',
+        'voucherDiscount',
+        'grandTotal',
+        'appliedVoucher'
+    ));
+}
 
     public function processCheckout(Request $request)
     {
@@ -70,8 +106,7 @@ class CheckoutController extends Controller
         ]);
 
         try {
-            DB::beginTransaction();
-
+ 
             if ($request->has('checkRegister') && $request->checkRegister) {
                 $user = new User();
                 $user->first_name = $request->firstName;
@@ -124,8 +159,7 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            DB::commit();
-
+ 
             Cookie::queue(Cookie::forget('cartData'));
 
             if ($request->payment_method === 'VNPay') {
@@ -134,8 +168,7 @@ class CheckoutController extends Controller
                 return $this->createMoney($order->id);
             }
         } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()->withErrors([
+             return redirect()->back()->withErrors([
                 'error' => 'There was an error processing your order.',
                 'exception' => $e->getMessage(),
             ]);

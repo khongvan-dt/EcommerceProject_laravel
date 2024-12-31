@@ -4,54 +4,213 @@ namespace App\Http\Controllers;
 
 use App\Models\AttributeValues;
 use App\Models\Products;
+use App\Models\Discounts;
+use App\Models\Vouchers;
+
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 
 class CartController extends Controller
 {
+    // public function index()
+    // {
+    //     $cartData = request()->cookie('cartData');
+    //     $cart = $cartData ? json_decode($cartData, true) : [];
+        
+    //     if (empty($cart)) {
+    //         return view('share.cart', ['cartIndex' => []])->with('error', 'Your cart is empty.');
+    //     }
+
+    //     $products = Products::with([
+    //         'media' => function ($query) {
+    //             $query->where('mainImage', 1);
+    //         },
+    //     ])->whereIn('id', array_column($cart, 'productId'))->get();
+        
+    //     $colors = AttributeValues::whereIn('id', array_column($cart, 'colorId'))->get();
+    //     $sizes = AttributeValues::whereIn('id', array_column($cart, 'sizeId'))->get();
+
+    //     $discounts = Discounts::whereIn('productId', array_column($cart, 'productId'))
+    //         ->where('status', 1)
+    //         ->get();
+
+    //     $cartIndex = [];
+    //     $subTotal = 0;
+
+    //     foreach ($cart as $cartItem) {
+    //         $product = $products->firstWhere('id', $cartItem['productId']);
+    //         $color = $colors->firstWhere('id', $cartItem['colorId']);
+    //         $size = $sizes->firstWhere('id', $cartItem['sizeId']);
+
+    //         if (!$product || !$color || !$size) {
+    //             continue;
+    //         }
+
+    //         $price = ($color->priceOut + $size->priceOut) / 2;
+
+    //         $activeDiscount = $discounts->firstWhere('productId', $cartItem['productId']);
+            
+    //         if ($activeDiscount) {
+    //             $price = $price - ($price * $activeDiscount->discountPercentage / 100);
+    //         }
+
+    //         $itemTotal = $price * $cartItem['quantity'];
+    //         $subTotal += $itemTotal;
+
+    //         $cartIndex[] = [
+    //             'product' => $product,
+    //             'color' => $color,
+    //             'size' => $size,
+    //             'price' => $price,
+    //             'quantity' => $cartItem['quantity'],
+    //         ];
+    //     }
+
+    //     return view('share.cart', compact('cartIndex', 'subTotal'));
+    // }
+
     public function index()
     {
         $cartData = request()->cookie('cartData');
         $cart = $cartData ? json_decode($cartData, true) : [];
-
+        
         if (empty($cart)) {
             return view('share.cart', ['cartIndex' => []])->with('error', 'Your cart is empty.');
         }
-
+    
         $products = Products::with([
             'media' => function ($query) {
                 $query->where('mainImage', 1);
             },
         ])->whereIn('id', array_column($cart, 'productId'))->get();
-
+        
         $colors = AttributeValues::whereIn('id', array_column($cart, 'colorId'))->get();
         $sizes = AttributeValues::whereIn('id', array_column($cart, 'sizeId'))->get();
+    
+        // Fetch active discounts
+        $discounts = Discounts::whereIn('productId', array_column($cart, 'productId'))
+            ->where('status', 1)
+            ->get();
+    
         $cartIndex = [];
-
         $subTotal = 0;
-
+    
         foreach ($cart as $cartItem) {
             $product = $products->firstWhere('id', $cartItem['productId']);
             $color = $colors->firstWhere('id', $cartItem['colorId']);
             $size = $sizes->firstWhere('id', $cartItem['sizeId']);
-
+    
             if (!$product || !$color || !$size) {
-                continue; // Bỏ qua sản phẩm không tồn tại
+                continue;
             }
-
-            $subTotal += ($color->priceOut + $size->priceOut) / 2 * $cartItem['quantity'];
+    
+            // Calculate original price
+            $price = ($color->priceOut + $size->priceOut) / 2;
+    
+            // Check for active discount
+            $activeDiscount = $discounts->firstWhere('productId', $cartItem['productId']);
+            
+            if ($activeDiscount) {
+                $price = $price - ($price * $activeDiscount->discountPercentage / 100);
+            }
+    
+            $itemTotal = $price * $cartItem['quantity'];
+            $subTotal += $itemTotal;
+    
             $cartIndex[] = [
                 'product' => $product,
                 'color' => $color,
                 'size' => $size,
-                'price' => ($color->priceOut + $size->priceOut) / 2,
+                'price' => $price,
                 'quantity' => $cartItem['quantity'],
             ];
         }
+    
+        $voucherCode = request()->input('voucher_code');
+        $voucherDiscount = 0;
+        $grandTotal = $subTotal;
+        $voucherData = session('voucher_data');
 
-        return view('share.cart', compact('cartIndex', 'subTotal'));
+    
+        if ($voucherCode) {
+            $voucher = Vouchers::where('code', 'LIKE', $voucherCode)
+                ->where('status', 'ACTIVE')
+                ->first();
+    
+            if ($voucher) {
+                 if (!$voucher->minPurchaseAmount || $subTotal >= $voucher->minPurchaseAmount) {
+                    $voucherDiscount = ($subTotal * $voucher->discountPercentage) / 100;
+                    $grandTotal = $subTotal - $voucherDiscount;
+                }
+            }
+        }
+    
+   
+
+    return view('share.cart', compact(
+        'cartIndex', 
+        'subTotal', 
+        'voucherDiscount', 
+        'grandTotal', 
+        'voucherData'
+    ));
+    }
+    
+    public function applyVoucher(Request $request)
+{
+    $voucherCode = $request->input('voucher_code');
+    
+    $voucher = Vouchers::where('code', $voucherCode)
+        ->where('status', 'ACTIVE')
+        ->where('quantity', '>', 0)
+        ->first();
+
+    if (!$voucher) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid voucher code or voucher is no longer available'
+        ]);
     }
 
+    $cartData = json_decode(request()->cookie('cartData'), true);
+    $subTotal = $this->calculateSubTotal($cartData);
+
+    if ($voucher->minPurchaseAmount && $subTotal < $voucher->minPurchaseAmount) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Minimum purchase amount not met'
+        ]);
+    }
+
+     session([
+        'applied_voucher' => [
+            'code' => $voucherCode,
+            'id' => $voucher->id,
+            'discount_percentage' => $voucher->discountPercentage,
+            'applied_at' => now()
+        ]
+    ]);
+
+    $discount = ($subTotal * $voucher->discountPercentage) / 100;
+    $grandTotal = $subTotal - $discount;
+
+    // Only decrement quantity after successful application
+    if (!$voucher->decrementQuantity()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error updating voucher quantity'
+        ]);
+    }
+
+    return response()->json([
+        'success' => true,
+        'discount' => $discount,
+        'grandTotal' => $grandTotal,
+        'voucher_id' => $voucher->id,
+        'message' => 'Voucher applied successfully'
+    ]);
+}
 
     public function addToCart(Request $request)
     {
@@ -147,6 +306,6 @@ class CartController extends Controller
         }
 
         Cookie::queue('cartData', json_encode(array_values($updatedCart)), 4320);
-        return redirect()->route('cart')->with('success', 'Sản phẩm đã được xóa khỏi giỏ hàng');
+        return redirect()->route('cart')->with('success', 'The product has been removed from the cart');
     }
 }

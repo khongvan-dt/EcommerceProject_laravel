@@ -20,4 +20,14 @@ class Vouchers extends Model
         'minPurchaseAmount',
         'status',
     ];
+    public function decrementQuantity()
+    {
+        $this->quantity -= 1;
+        
+        if ($this->quantity == 0) {
+            $this->status = 'INACTIVE';
+        }
+        
+        return $this->save();
+    }
 }

@@ -113,8 +113,7 @@
                                 <div class="checkout__input__checkbox">
                                     <label for="payMoney">
                                         PayMoney
-                                        <input type="radio" id="payMoney" name="payment_method" value="paymoney"
-                                            required>
+                                        <input type="radio" id="payMoney" name="payment_method" value="paymoney" required>
                                         <span class="checkmark"></span>
                                     </label>
                                     <label for="vnpay">
@@ -123,6 +122,7 @@
                                         <span class="checkmark"></span>
                                     </label>
                                 </div>
+
                                 <input type="hidden" name="totalPrice" value="{{$subTotal}}">
                                 <button type="submit" class="site-btn">PLACE ORDER</button>
                             </div>

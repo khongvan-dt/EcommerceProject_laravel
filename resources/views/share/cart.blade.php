@@ -41,6 +41,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    
                                     @if (count($cartIndex) > 0)
                                         @foreach ($cartIndex as $item)
                                             <tr>
@@ -103,28 +104,84 @@
                     </div>
                 </div>
                 <div class="col-lg-4">
-                    <div class="cart__discount">
-                        <h6>Vouchers codes</h6>
-                        <form action="#">
-                            <input type="text" placeholder="voucher code">
-                            <button type="submit">Apply</button>
+                <div class="cart__discount">
+                    <h6>Vouchers codes</h6>
+                    @if(session('voucher_data'))
+                        <div class="alert alert-success">
+                            Voucher {{ session('voucher_data')['code'] }} applied successfully
+                        </div>
+                    @else
+                        <form id="voucherForm">
+                            @csrf
+                            <input type="text" name="voucher_code" id="voucherCode" placeholder="Enter voucher code">
+                            <button type="submit" id="applyVoucherBtn">Apply</button>
                         </form>
-                    </div>
-                    <div class="cart__total">
-                        <h6>Cart total</h6>
-                        <ul>
+                    @endif
+                    <div id="voucherMessage"></div>
+                </div>
+
+                <div class="cart__total">
+                    <h6>Cart total</h6>
+                    <ul>
+                        @if(isset($subTotal) && $subTotal > 0)
                             <li>Subtotal <span id="subtotal">{{ number_format($subTotal * 1000, 0, ',', '.') }}đ</span></li>
-                            <li>Total <span id="grand-total">{{ number_format($subTotal * 1000, 0, ',', '.') }}đ</span></li>
-                        </ul>
-                        <a href="{{route('checkout')}}" class="primary-btn">Proceed to checkout</a>
-                    </div>
+                            @if(isset($voucherDiscount) && $voucherDiscount > 0)
+                                <li>Voucher discount <span id="voucher-discount">-{{ number_format($voucherDiscount * 1000, 0, ',', '.') }}đ</span></li>
+                            @endif
+                            <li>Total <span id="grand-total">{{ number_format($grandTotal * 1000, 0, ',', '.') }}đ</span></li>
+                        @else
+                            <li>No products in the cart</li>
+                        @endif
+                    </ul>
+                    @if(isset($subTotal) && $subTotal > 0)
+                        <a href="{{ route('checkout') }}" class="primary-btn">Proceed to checkout</a>
+                    @endif
+                </div>
+
+
                 </div>
             </div>
         </div>
     </section>
-    <!-- Shopping Cart Section End -->
-
+   
     <script>
+              $(document).ready(function() {
+            $('#voucherForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                var voucherCode = $('#voucherCode').val();
+                if (!voucherCode) {
+                    $('#voucherMessage').html('<div class="alert alert-danger">Please enter voucher code</div>');
+                    return;
+                }
+
+                $('#applyVoucherBtn').prop('disabled', true);
+                $('#voucherCode').prop('disabled', true);
+
+                $.ajax({
+                    url: '{{ route("cart.apply-voucher") }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        voucher_code: voucherCode
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.reload();
+                        } else {
+                            $('#voucherMessage').html('<div class="alert alert-danger">' + response.message + '</div>');
+                            $('#voucherCode').prop('disabled', false);
+                            $('#applyVoucherBtn').prop('disabled', false);
+                        }
+                    },
+                    error: function() {
+                        $('#voucherMessage').html('<div class="alert alert-danger">Error applying voucher</div>');
+                        $('#voucherCode').prop('disabled', false);
+                        $('#applyVoucherBtn').prop('disabled', false);
+                    }
+                });
+            });
+        });
 
         document.getElementById('updateCartBtn').addEventListener('click', function(event) {
             event.preventDefault();

@@ -58,7 +58,9 @@ Route::get('checkout', [CheckoutController::class, 'checkout'])->name('checkout'
 Route::post('/checkout/process', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 
-
+ 
+Route::post('/cart/apply-voucher', [CartController::class, 'applyVoucher'])->name('cart.apply-voucher');
+  
 Route::middleware('auth')->group(function () {
     Route::get('/ListOrder', [DashboardUserController::class, 'listOrder'])->name('viewOrder');
     Route::get('/ListOrder/{orderId}', [DashboardUserController::class, 'listOrderDetail'])->name('viewOrderDetail');

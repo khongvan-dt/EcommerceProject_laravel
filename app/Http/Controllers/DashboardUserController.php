@@ -22,14 +22,17 @@ class DashboardUserController extends Controller
             $productsByType = Products::whereHas('types', function ($query) use ($request) {
                 $query->where('typeId', $request->type);
             })
-                ->with(['media' => function ($query) {
-                    $query->where('mainImage', 1);
-                }])
-                ->get();
+            ->with(['media' => function ($query) {
+                $query->where('mainImage', 1)
+                      ->where('status', 0);
+            }])
+            ->get();
         } else {
             $productsByType = Products::with(['media' => function ($query) {
                 $query->where('mainImage', 1);
-            }])->get();
+            }])
+            ->where('status', 0)
+            ->get();
         }
 
         return view('share.dashboard', compact('types', 'productsByType'));
@@ -40,7 +43,8 @@ class DashboardUserController extends Controller
         $categories = Categories::withCount('products')->get();
         $brands = Brands::withCount('products')->get();
 
-        $query = Products::with([
+        $query = Products::where('status', 0)
+        ->with([
             'media' => function ($query) {
                 $query->where('mainImage', 1);
             },

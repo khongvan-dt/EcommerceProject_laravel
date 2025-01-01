@@ -21,6 +21,8 @@
     <link rel="stylesheet" href="{{ asset('assets/admin/css/img_input.css') }}" />
     <script src="{{ asset('assets/admin/js/img_product.js') }}"></script>
     <script src="{{ asset('assets/admin/js/avt.js') }}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/admin/css/star.css') }}" />
 
     </head>
 

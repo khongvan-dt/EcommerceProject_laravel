@@ -109,52 +109,10 @@ Review</button>
         <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
     </div>
 </form>   
-        <style>
-.rating {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: center;
-    gap: 8px;
-}
-
-.rating input {
-    display: none;
-}
-
-.rating label {
-    cursor: pointer;
-    color: #ddd;
-    transition: color 0.3s ease;
-}
-
-.rating input:checked ~ label,
-.rating label:hover,
-.rating label:hover ~ label {
-    color: #ffc107;
-}
-
-.rating input:checked + label:hover,
-.rating input:checked ~ label:hover,
-.rating input:checked ~ label:hover ~ label,
-.rating label:hover ~ input:checked ~ label {
-    color: #ff9800;
-}
-</style>
+     
 
 <!-- JavaScript -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const stars = document.querySelectorAll('.rating input');
-    const feedbackText = document.querySelector('.feedback-text');
-    
-    stars.forEach(star => {
-        star.addEventListener('change', function() {
-            const rating = this.value;
-            console.log(`Selected rating: ${rating}`);
-        });
-    });
-});
-</script>  
+
     </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -179,4 +137,17 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
     </section>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.rating input');
+    const feedbackText = document.querySelector('.feedback-text');
+    
+    stars.forEach(star => {
+        star.addEventListener('change', function() {
+            const rating = this.value;
+            console.log(`Selected rating: ${rating}`);
+        });
+    });
+});
+</script>  
 @endsection

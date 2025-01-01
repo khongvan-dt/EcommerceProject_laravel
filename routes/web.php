@@ -163,7 +163,6 @@ Route::group(['middleware' => ['role:ADMIN'], 'prefix' => 'admin'], function () 
     Route::get('/reviewProducts/edit/{id}', [ReviewProductController::class, 'edit'])->name('admin.reviewProducts.edit');
     Route::put('reviewProducts/update/{id}', [ReviewProductController::class, 'update'])->name('admin.reviewProducts.update');
     Route::delete('/reviewProducts/{id}', [ReviewProductController::class, 'destroy'])->name('admin.reviewProducts.destroy');
-
     // Route for Type
     Route::get('/types', [TypeController::class, 'index'])->name('admin.types.index');
     Route::get('/types/create', [TypeController::class, 'create'])->name('admin.types.create');

@@ -1,0 +1,44 @@
+
+.rating-stars {
+    min-width: 120px;
+}
+
+.stars {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+}
+
+.stars i {
+    font-size: 16px;
+}
+
+.fa-star.text-warning {
+    color: #ffc107;
+}
+
+.status-btn {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.active-btn {
+    background-color: #e7f8f0;
+    color: #00b074;
+}
+
+.close-btn {
+    background-color: #ffefef;
+    color: #ff0000;
+}
+
+.action button {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.action button:hover {
+    opacity: 0.8;
+}

@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="{{ asset('assets/share/css/owl.carousel.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ asset('assets/share/css/slicknav.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ asset('assets/share/css/style.css') }}" type="text/css">
+
     <style>
    .price-container {
     display: flex;
@@ -51,7 +52,40 @@
     border-radius: 4px;
     font-size: 0.8em;
 }
-   </style>
+
+
+  
+.rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 8px;
+}
+
+.rating input {
+    display: none;
+}
+
+.rating label {
+    cursor: pointer;
+    color: #ddd;
+    transition: color 0.3s ease;
+}
+
+.rating input:checked ~ label,
+.rating label:hover,
+.rating label:hover ~ label {
+    color: #ffc107;
+}
+
+.rating input:checked + label:hover,
+.rating input:checked ~ label:hover,
+.rating input:checked ~ label:hover ~ label,
+.rating label:hover ~ input:checked ~ label {
+    color: #ff9800;
+}
+</style>
+
 </head>
 
 <body>

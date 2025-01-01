@@ -18,4 +18,13 @@ class ReviewProducts extends Model
         'comment',
         'status',
     ];
+    public function product()
+    {
+        return $this->belongsTo(Products::class, 'productId', 'id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'userId', 'id');
+    }
 }

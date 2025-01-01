@@ -57,13 +57,14 @@ Route::delete('/cart/delete/{productId}', [CartController::class, 'deleteCart'])
 Route::get('checkout', [CheckoutController::class, 'checkout'])->name('checkout');
 Route::post('/checkout/process', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
-
- 
 Route::post('/cart/apply-voucher', [CartController::class, 'applyVoucher'])->name('cart.apply-voucher');
-  
+Route::post('/cart/remove-voucher', [CartController::class, 'removeVoucher'])->name('cart.remove-voucher');
+
 Route::middleware('auth')->group(function () {
     Route::get('/ListOrder', [DashboardUserController::class, 'listOrder'])->name('viewOrder');
     Route::get('/ListOrder/{orderId}', [DashboardUserController::class, 'listOrderDetail'])->name('viewOrderDetail');
+    Route::post('/review/{orderId}', [DashboardUserController::class, 'store'])->name('review.store'); // Thêm route này
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 

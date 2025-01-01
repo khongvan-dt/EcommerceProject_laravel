@@ -17,69 +17,72 @@ class CheckoutController extends Controller
 {
     public function checkout()
 {
-    $cart = json_decode(Cookie::get('cartData', '[]'), true);
+    // Debug: In ra cartData ban đầu
+    $cartData = json_decode(Cookie::get('cartData', '{"items":[]}'), true);
+ 
+    $products = Products::whereIn('id', array_column($cartData['items'], 'productId'))->get();
+    $colors = AttributeValues::whereIn('id', array_column($cartData['items'], 'colorId'))->get();
+    $sizes = AttributeValues::whereIn('id', array_column($cartData['items'], 'sizeId'))->get();
 
-    if (empty($cart)) {
-        return view('share.checkout', ['cartIndex' => [], 'subTotal' => 0]);
-    }
 
-    $products = Products::whereIn('id', array_column($cart, 'productId'))->get();
-    $colors = AttributeValues::whereIn('id', array_column($cart, 'colorId'))->get();
-    $sizes = AttributeValues::whereIn('id', array_column($cart, 'sizeId'))->get();
 
-     $discounts = Discounts::whereIn('productId', array_column($cart, 'productId'))
+    $discounts = Discounts::whereIn('productId', array_column($cartData['items'], 'productId'))
         ->where('status', 1)
         ->get();
-
+    
+   
     $cartIndex = [];
     $subTotal = 0;
 
-    foreach ($cart as $cartItem) {
+    foreach ($cartData['items'] as $cartItem) {
         $product = $products->firstWhere('id', $cartItem['productId']);
         $color = $colors->firstWhere('id', $cartItem['colorId']);
         $size = $sizes->firstWhere('id', $cartItem['sizeId']);
+        $basePrice = ($color->priceOut + $size->priceOut) / 2;
+        
+        
 
-        if (!$product || !$color || !$size) {
-            continue;
-        }
-
-         $price = ($color->priceOut + $size->priceOut) / 2;
-
-         $productDiscount = $discounts->firstWhere('productId', $cartItem['productId']);
+        $price = $basePrice;
+        $productDiscount = $discounts->firstWhere('productId', $cartItem['productId']);
         if ($productDiscount) {
-            $price = $price - ($price * $productDiscount->discountPercentage / 100);
+            $price = $price - ($price * $productDiscount->discountPercentage / 100);           
         }
 
         $itemTotal = $price * $cartItem['quantity'];
         $subTotal += $itemTotal;
+
+      
 
         $cartIndex[] = [
             'product' => $product,
             'color' => $color,
             'size' => $size,
             'price' => $price,
-            'originalPrice' => ($color->priceOut + $size->priceOut) / 2,
+            'originalPrice' => $basePrice,
             'productDiscount' => $productDiscount ? $productDiscount->discountPercentage : 0,
             'quantity' => $cartItem['quantity'],
             'itemTotal' => $itemTotal
         ];
     }
 
-     $grandTotal = $subTotal;
+   
+
+    $grandTotal = $subTotal;
     $voucherDiscount = 0;
     $appliedVoucher = null;
 
-    if (session()->has('applied_voucher')) {
-        $voucherCode = session('applied_voucher');
-        $voucher = Vouchers::where('code', $voucherCode)
-            ->where('status', 'ACTIVE')
-            ->first();
+    if (isset($cartData['appliedVoucher'])) {
+        $voucher = Vouchers::find($cartData['appliedVoucher']['id']);
+        
+       
 
-        if ($voucher) {
+        if ($voucher && $voucher->status === 'ACTIVE') {
             if (!$voucher->minPurchaseAmount || $subTotal >= $voucher->minPurchaseAmount) {
                 $voucherDiscount = ($subTotal * $voucher->discountPercentage) / 100;
                 $grandTotal = $subTotal - $voucherDiscount;
                 $appliedVoucher = $voucher;
+
+               
             }
         }
     }
@@ -121,44 +124,75 @@ class CheckoutController extends Controller
                 $user = Auth::user();
             }
 
-
-            $order = Orders::create([
-                'userId' => $user ? $user->id : null,
-                'paymentMethod' => $request->payment_method,
-                'totalPrice' => $request->totalPrice,
-                'discountAmount' => $request->discountAmount,
-                'voucherCode' => $request->voucherCode,
-                'status' => 'PENDING'
-            ]);
-
+            $totalDiscountAmount = 0;
+            $totalPrice = 0;
+    
+           
 
             $cart = json_decode(Cookie::get('cartData', '[]'), true);
+            //dd($cart);
             $products = Products::whereIn('id', array_column($cart, 'productId'))->get();
             $colors = AttributeValues::whereIn('id', array_column($cart, 'colorId'))->get();
             $sizes = AttributeValues::whereIn('id', array_column($cart, 'sizeId'))->get();
+    
+            $activeDiscounts = Discounts::whereIn('productId', array_column($cart, 'productId'))
+                ->where('startDate', '<=', now())
+                ->where('endDate', '>=', now())
+                ->get();
+    
+            foreach ($cart['items'] as $cartItem) {
 
-            foreach ($cart as $cartItem) {
                 $product = $products->firstWhere('id', $cartItem['productId']);
                 $color = $colors->firstWhere('id', $cartItem['colorId']);
                 $size = $sizes->firstWhere('id', $cartItem['sizeId']);
-
+    
                 if (!$product || !$color || !$size) {
                     continue;
                 }
+    
+                $basePrice = ($color->priceOut + $size->priceOut) / 2;
+            $quantity = $cartItem['quantity'];
+            $itemTotal = $basePrice * $quantity;
 
-                $price = ($color->priceOut + $size->priceOut) / 2;
+            $discount = $activeDiscounts->firstWhere('productId', $product->id);
+            if ($discount) {
+                $discountAmount = $itemTotal * ($discount->discountPercentage / 100);
+                $totalDiscountAmount += $discountAmount;
+            }
 
+            $totalPrice += $itemTotal;
+        
+
+        $order = Orders::create([
+            'userId' => $user ? $user->id : null,
+            'paymentMethod' => $request->payment_method,
+            'totalPrice' => $totalPrice,
+            'discountAmount' => $totalDiscountAmount,
+            'voucherCode' => 0,
+            'status' => 'PENDING'
+        ]);
+                 $basePrice = ($color->priceOut + $size->priceOut) / 2;
+    
+                 $discount = $activeDiscounts->firstWhere('productId', $product->id);
+                $discountPercentage = 0;
+    
+                if ($discount) {
+                    $discountPercentage = $discount->discountPercentage;
+                    $basePrice = $basePrice * (1 - $discountPercentage / 100);
+                }
+    
+                 $totalItemPrice = $basePrice * $cartItem['quantity'];
+    
                 OrderDetails::create([
                     'orderId' => $order->id,
                     'productId' => $product->id,
                     'sizeId' => $size->id,      
                     'colorId' => $color->id,     
                     'quantity' => $cartItem['quantity'],
-                    'price' => $price,
-                    'discount_percentage' => 0,
+                    'price' => $basePrice,
+                    'discount_percentage' => $discountPercentage,
                 ]);
             }
-
  
             Cookie::queue(Cookie::forget('cartData'));
 

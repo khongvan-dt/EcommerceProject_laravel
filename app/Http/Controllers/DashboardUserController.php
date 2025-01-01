@@ -7,10 +7,10 @@ use App\Models\Categories;
 use App\Models\OrderDetails;
 use App\Models\Orders;
 use App\Models\Products;
-use App\Models\ProductTypes;
 use App\Models\Types;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ReviewProducts;
 
 class DashboardUserController extends Controller
 {
@@ -155,6 +155,37 @@ class DashboardUserController extends Controller
             ->where('orderId', $orderId)
             ->get();
         return view('share.listOrderDetail', compact('orderDetails'));
+    }
+
+    public function store(Request $request, $orderId)
+    {
+        $request->validate([
+            'rating' => 'required|int|min:1|max:5',
+            'comment' => 'required|string|max:255',
+        ]);
+
+        $orderDetails = OrderDetails::with([
+            'product',
+            'media',
+            'size',
+            'color'
+        ])
+        ->where('orderId', $orderId)
+        ->first();
+
+        if (!$orderDetails) {
+            return redirect()->back()->with('error', 'Không tìm thấy đơn hàng!');
+        }
+
+        $reviewProducts = new ReviewProducts();
+        $reviewProducts->productId = $orderDetails->product->id; 
+        $reviewProducts->userId = auth()->id(); 
+        $reviewProducts->rating = $request->rating;
+        $reviewProducts->comment = $request->comment;
+        $reviewProducts->status = 1;
+        $reviewProducts->save();
+
+        return redirect()->back()->with('success', 'Cảm ơn bạn đã đánh giá!');
     }
 
     public function contact(){

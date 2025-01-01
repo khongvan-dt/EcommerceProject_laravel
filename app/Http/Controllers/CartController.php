@@ -13,205 +13,168 @@ use Illuminate\Support\Facades\Cookie;
 
 class CartController extends Controller
 {
-    // public function index()
-    // {
-    //     $cartData = request()->cookie('cartData');
-    //     $cart = $cartData ? json_decode($cartData, true) : [];
-        
-    //     if (empty($cart)) {
-    //         return view('share.cart', ['cartIndex' => []])->with('error', 'Your cart is empty.');
-    //     }
-
-    //     $products = Products::with([
-    //         'media' => function ($query) {
-    //             $query->where('mainImage', 1);
-    //         },
-    //     ])->whereIn('id', array_column($cart, 'productId'))->get();
-        
-    //     $colors = AttributeValues::whereIn('id', array_column($cart, 'colorId'))->get();
-    //     $sizes = AttributeValues::whereIn('id', array_column($cart, 'sizeId'))->get();
-
-    //     $discounts = Discounts::whereIn('productId', array_column($cart, 'productId'))
-    //         ->where('status', 1)
-    //         ->get();
-
-    //     $cartIndex = [];
-    //     $subTotal = 0;
-
-    //     foreach ($cart as $cartItem) {
-    //         $product = $products->firstWhere('id', $cartItem['productId']);
-    //         $color = $colors->firstWhere('id', $cartItem['colorId']);
-    //         $size = $sizes->firstWhere('id', $cartItem['sizeId']);
-
-    //         if (!$product || !$color || !$size) {
-    //             continue;
-    //         }
-
-    //         $price = ($color->priceOut + $size->priceOut) / 2;
-
-    //         $activeDiscount = $discounts->firstWhere('productId', $cartItem['productId']);
-            
-    //         if ($activeDiscount) {
-    //             $price = $price - ($price * $activeDiscount->discountPercentage / 100);
-    //         }
-
-    //         $itemTotal = $price * $cartItem['quantity'];
-    //         $subTotal += $itemTotal;
-
-    //         $cartIndex[] = [
-    //             'product' => $product,
-    //             'color' => $color,
-    //             'size' => $size,
-    //             'price' => $price,
-    //             'quantity' => $cartItem['quantity'],
-    //         ];
-    //     }
-
-    //     return view('share.cart', compact('cartIndex', 'subTotal'));
-    // }
-
     public function index()
-    {
-        $cartData = request()->cookie('cartData');
-        $cart = $cartData ? json_decode($cartData, true) : [];
-        
-        if (empty($cart)) {
-            return view('share.cart', ['cartIndex' => []])->with('error', 'Your cart is empty.');
-        }
-    
-        $products = Products::with([
-            'media' => function ($query) {
-                $query->where('mainImage', 1);
-            },
-        ])->whereIn('id', array_column($cart, 'productId'))->get();
-        
-        $colors = AttributeValues::whereIn('id', array_column($cart, 'colorId'))->get();
-        $sizes = AttributeValues::whereIn('id', array_column($cart, 'sizeId'))->get();
-    
-        // Fetch active discounts
-        $discounts = Discounts::whereIn('productId', array_column($cart, 'productId'))
-            ->where('status', 1)
-            ->get();
-    
-        $cartIndex = [];
-        $subTotal = 0;
-    
-        foreach ($cart as $cartItem) {
-            $product = $products->firstWhere('id', $cartItem['productId']);
-            $color = $colors->firstWhere('id', $cartItem['colorId']);
-            $size = $sizes->firstWhere('id', $cartItem['sizeId']);
-    
-            if (!$product || !$color || !$size) {
-                continue;
-            }
-    
-            // Calculate original price
-            $price = ($color->priceOut + $size->priceOut) / 2;
-    
-            // Check for active discount
-            $activeDiscount = $discounts->firstWhere('productId', $cartItem['productId']);
-            
-            if ($activeDiscount) {
-                $price = $price - ($price * $activeDiscount->discountPercentage / 100);
-            }
-    
-            $itemTotal = $price * $cartItem['quantity'];
-            $subTotal += $itemTotal;
-    
-            $cartIndex[] = [
-                'product' => $product,
-                'color' => $color,
-                'size' => $size,
-                'price' => $price,
-                'quantity' => $cartItem['quantity'],
-            ];
-        }
-    
-        $voucherCode = request()->input('voucher_code');
-        $voucherDiscount = 0;
-        $grandTotal = $subTotal;
-        $voucherData = session('voucher_data');
-
-    
-        if ($voucherCode) {
-            $voucher = Vouchers::where('code', 'LIKE', $voucherCode)
-                ->where('status', 'ACTIVE')
-                ->first();
-    
-            if ($voucher) {
-                 if (!$voucher->minPurchaseAmount || $subTotal >= $voucher->minPurchaseAmount) {
-                    $voucherDiscount = ($subTotal * $voucher->discountPercentage) / 100;
-                    $grandTotal = $subTotal - $voucherDiscount;
-                }
-            }
-        }
-    
-   
-
-    return view('share.cart', compact(
-        'cartIndex', 
-        'subTotal', 
-        'voucherDiscount', 
-        'grandTotal', 
-        'voucherData'
-    ));
-    }
-    
-    public function applyVoucher(Request $request)
 {
-    $voucherCode = $request->input('voucher_code');
+    $cartData = request()->cookie('cartData');
+    $cart = $cartData ? json_decode($cartData, true) : [];
     
-    $voucher = Vouchers::where('code', $voucherCode)
-        ->where('status', 'ACTIVE')
-        ->where('quantity', '>', 0)
-        ->first();
-
-    if (!$voucher) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Invalid voucher code or voucher is no longer available'
-        ]);
+    if (empty($cart)) {
+        return view('share.cart', ['cartIndex' => []])->with('error', 'Your cart is empty.');
     }
 
-    $cartData = json_decode(request()->cookie('cartData'), true);
-    $subTotal = $this->calculateSubTotal($cartData);
+    $products = Products::with([
+        'media' => function ($query) {
+            $query->where('mainImage', 1);
+        },
+    ])->whereIn('id', array_column($cart, 'productId'))->get();
+    
+    $colors = AttributeValues::whereIn('id', array_column($cart, 'colorId'))->get();
+    $sizes = AttributeValues::whereIn('id', array_column($cart, 'sizeId'))->get();
 
-    if ($voucher->minPurchaseAmount && $subTotal < $voucher->minPurchaseAmount) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Minimum purchase amount not met'
-        ]);
+    $discounts = Discounts::whereIn('productId', array_column($cart, 'productId'))
+        ->where('status', 1)
+        ->get();
+
+    $cartIndex = [];
+    $subTotal = 0;
+
+    foreach ($cart as $cartItem) {
+        if (!isset($cartItem['productId'])) continue; 
+
+        $product = $products->firstWhere('id', $cartItem['productId']);
+        $color = $colors->firstWhere('id', $cartItem['colorId']);
+        $size = $sizes->firstWhere('id', $cartItem['sizeId']);
+
+        if (!$product || !$color || !$size) {
+            continue;
+        }
+
+        $price = ($color->priceOut + $size->priceOut) / 2;
+
+        $activeDiscount = $discounts->firstWhere('productId', $cartItem['productId']);
+        
+        if ($activeDiscount) {
+            $price = $price - ($price * $activeDiscount->discountPercentage / 100);
+        }
+
+        $itemTotal = $price * $cartItem['quantity'];
+        $subTotal += $itemTotal;
+
+        $cartIndex[] = [
+            'product' => $product,
+            'color' => $color,
+            'size' => $size,
+            'price' => $price,
+            'quantity' => $cartItem['quantity'],
+        ];
     }
 
-     session([
-        'applied_voucher' => [
-            'code' => $voucherCode,
-            'id' => $voucher->id,
-            'discount_percentage' => $voucher->discountPercentage,
-            'applied_at' => now()
-        ]
-    ]);
+     $voucherDiscount = 0;
+    $grandTotal = $subTotal;
+    $appliedVoucher = isset($cart['appliedVoucher']) ? $cart['appliedVoucher'] : null;
 
-    $discount = ($subTotal * $voucher->discountPercentage) / 100;
-    $grandTotal = $subTotal - $discount;
-
-    // Only decrement quantity after successful application
-    if (!$voucher->decrementQuantity()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error updating voucher quantity'
-        ]);
+    if ($appliedVoucher) {
+         $voucher = Vouchers::find($appliedVoucher['id']);
+        if ($voucher && $voucher->status === 'ACTIVE') {
+            $voucherDiscount = ($subTotal * $appliedVoucher['discountPercentage']) / 100;
+            $grandTotal = $subTotal - $voucherDiscount;
+        } else {
+             unset($cart['appliedVoucher']);
+            $cookie = cookie('cartData', json_encode($cart), 60 * 24 * 7);
+            
+             $response = response()->view('share.cart', compact('cartIndex', 'subTotal', 'grandTotal'));
+            
+             return $response->cookie($cookie);
+        }
     }
 
-    return response()->json([
-        'success' => true,
-        'discount' => $discount,
-        'grandTotal' => $grandTotal,
-        'voucher_id' => $voucher->id,
-        'message' => 'Voucher applied successfully'
-    ]);
+    return view('share.cart', compact('cartIndex', 'subTotal', 'voucherDiscount', 'grandTotal', 'appliedVoucher'));
+    }
+    public function removeVoucher()
+{
+    try {
+        // Lấy cart data từ cookie
+        $cartData = json_decode(request()->cookie('cartData'), true) ?? [];
+        
+        // Kiểm tra xem có voucher đang áp dụng không
+        if (!isset($cartData['appliedVoucher'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No voucher applied'
+            ]);
+        }
+
+        // Xóa thông tin voucher khỏi cart
+        unset($cartData['appliedVoucher']);
+
+        // Tính lại tổng tiền
+        $subTotal = $this->calculateSubTotal($cartData);
+
+        // Tạo cookie mới với cart data đã cập nhật
+        $cookie = cookie('cartData', json_encode($cartData), 60 * 24 * 7);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Voucher removed successfully',
+            'subTotal' => $subTotal,
+            'grandTotal' => $subTotal // Vì đã xóa voucher nên grandTotal = subTotal
+        ])->cookie($cookie);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error removing voucher'
+        ]);
+    }
 }
-
+    public function applyVoucher(Request $request) {
+        $voucherCode = $request->input('voucher_code');
+        
+        // Lấy toàn bộ thông tin voucher thay vì chỉ lấy discountPercentage
+        $voucher = Vouchers::where('code', $voucherCode)
+            ->where('status', 'ACTIVE')
+            ->where('quantity', '>', 0)
+            ->first();
+    
+        if (!$voucher) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid voucher code or voucher is no longer available'
+            ]);
+        }
+    
+        $cartData = json_decode(request()->cookie('cartData'), true) ?? [];
+        $subTotal = $this->calculateSubTotal($cartData);
+    
+        // Tính toán số tiền giảm giá và tổng tiền phải trả
+        $discountAmount = ($subTotal * $voucher->discountPercentage) / 100;
+        $grandTotal = $subTotal - $discountAmount;
+    
+        // Lưu thông tin voucher vào cart
+        $cartData['appliedVoucher'] = [
+            'id' => $voucher->id,
+            'code' => $voucherCode,
+            'discountPercentage' => $voucher->discountPercentage
+        ];
+    
+        // Tạo cookie mới với thông tin đã cập nhật
+        $cookie = cookie('cartData', json_encode($cartData), 60 * 24 * 7);
+    
+        if (!$voucher->decrementQuantity()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating voucher quantity'
+            ]);
+        }
+    
+        return response()->json([
+            'success' => true,
+            'discount' => $discountAmount,
+            'grandTotal' => $grandTotal,
+            'discountPercentage' => $voucher->discountPercentage,
+            'message' => "Voucher applied successfully - " . $voucher->discountPercentage . "% off"
+        ])->cookie($cookie);
+    }
     public function addToCart(Request $request)
     {
         $request->validate([
@@ -256,27 +219,44 @@ class CartController extends Controller
 
 
     public function updateCart(Request $request)
-    {
+{
+    try {
+       
+        
         $quantities = $request->input('quantities');
-        $cart = json_decode(Cookie::get('cartData', '[]'), true);
+        if(!$quantities) {
+            throw new \Exception('No quantities provided');
+        }
+
+        $cart = json_decode(Cookie::get('cartData', '{"items":[]}'), true);
 
         foreach ($quantities as $productId => $quantity) {
+            $quantity = (int)$quantity;
+            
             if ($quantity <= 0) {
                 continue;
             }
 
-            foreach ($cart as &$item) {
-                if ($item['productId'] == $productId) {
+            foreach ($cart['items'] as &$item) {
+                if ((int)$item['productId'] === (int)$productId) {
                     $item['quantity'] = $quantity;
+                   
                 }
             }
         }
 
+       
+        // Save updated cart
         Cookie::queue('cartData', json_encode($cart), 4320);
 
-        return redirect()->route('cart')->with('success', 'Cart updated successfully!');
-    }
+        return redirect()->route('cart')
+            ->with('success', 'Cart updated successfully!');
 
+    } catch (\Exception $e) {
+         return redirect()->route('cart')
+            ->with('error', 'Failed to update cart: ' . $e->getMessage());
+    }
+}
 
     public function deleteCart(Request $request)
     {

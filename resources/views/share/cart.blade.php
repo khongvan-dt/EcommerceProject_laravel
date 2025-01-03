@@ -114,9 +114,14 @@
                     <div class="cart__total">
                         <h6>Cart total</h6>
                         <ul>
-                            <li>Subtotal <span id="subtotal">{{ number_format($subTotal * 1000, 0, ',', '.') }}đ</span></li>
-                            <li>Total <span id="grand-total">{{ number_format($subTotal * 1000, 0, ',', '.') }}đ</span></li>
-                        </ul>
+    @if(isset($subTotal))
+        <li>Subtotal <span id="subtotal">{{ number_format($subTotal * 1000, 0, ',', '.') }}đ</span></li>
+        <li>Total <span id="grand-total">{{ number_format($subTotal * 1000, 0, ',', '.') }}đ</span></li>
+    @else
+        <li>Subtotal <span id="subtotal">0đ</span></li>
+        <li>Total <span id="grand-total">0đ</span></li>
+    @endif
+</ul>
                         <a href="{{route('checkout')}}" class="primary-btn">Proceed to checkout</a>
                     </div>
                 </div>

@@ -20,21 +20,19 @@ class CheckoutController extends Controller
     // Debug: In ra cartData ban đầu
     $cartData = json_decode(Cookie::get('cartData', '{"items":[]}'), true);
  
-    $products = Products::whereIn('id', array_column($cartData['items'], 'productId'))->get();
-    $colors = AttributeValues::whereIn('id', array_column($cartData['items'], 'colorId'))->get();
-    $sizes = AttributeValues::whereIn('id', array_column($cartData['items'], 'sizeId'))->get();
-
-
-
-    $discounts = Discounts::whereIn('productId', array_column($cartData['items'], 'productId'))
+    $products = Products::whereIn('id', array_column($cartData, 'productId'))->get();
+    $colors = AttributeValues::whereIn('id', array_column($cartData , 'colorId'))->get();
+    $sizes = AttributeValues::whereIn('id', array_column($cartData, 'sizeId'))->get();
+    $discounts = Discounts::whereIn('productId', array_column($cartData, 'productId'))
         ->where('status', 1)
         ->get();
-    
-   
     $cartIndex = [];
     $subTotal = 0;
+    if(!$cartData || count($cartData) === 0) {
+        return redirect()->route('cart');
+    }
 
-    foreach ($cartData['items'] as $cartItem) {
+    foreach ($cartData as $cartItem) {
         $product = $products->firstWhere('id', $cartItem['productId']);
         $color = $colors->firstWhere('id', $cartItem['colorId']);
         $size = $sizes->firstWhere('id', $cartItem['sizeId']);
@@ -64,18 +62,11 @@ class CheckoutController extends Controller
             'itemTotal' => $itemTotal
         ];
     }
-
-   
-
     $grandTotal = $subTotal;
     $voucherDiscount = 0;
     $appliedVoucher = null;
-
     if (isset($cartData['appliedVoucher'])) {
         $voucher = Vouchers::find($cartData['appliedVoucher']['id']);
-        
-       
-
         if ($voucher && $voucher->status === 'ACTIVE') {
             if (!$voucher->minPurchaseAmount || $subTotal >= $voucher->minPurchaseAmount) {
                 $voucherDiscount = ($subTotal * $voucher->discountPercentage) / 100;
@@ -140,7 +131,7 @@ class CheckoutController extends Controller
                 ->where('endDate', '>=', now())
                 ->get();
     
-            foreach ($cart['items'] as $cartItem) {
+            foreach ($cart as $cartItem) {
 
                 $product = $products->firstWhere('id', $cartItem['productId']);
                 $color = $colors->firstWhere('id', $cartItem['colorId']);

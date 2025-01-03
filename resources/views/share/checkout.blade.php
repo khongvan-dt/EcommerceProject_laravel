@@ -1,6 +1,10 @@
 @extends('layouts.share')
 
 @section('content')
+
+    <!-- @if(empty($cartData))
+        <script>window.location.href = "{{ url('/cart') }}";</script>
+    @endif -->
     <!-- Breadcrumb Section Begin -->
     <section class="breadcrumb-option">
         <div class="container">

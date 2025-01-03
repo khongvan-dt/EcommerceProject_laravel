@@ -110,10 +110,26 @@
                                         </li>
                                     @endforeach
                                 </ul>
+
+
+
+
+
+                                
+
+
+
                                 <ul class="checkout__total__all">
-                                    <li>Subtotal <span>{{ number_format($subTotal * 1000, 0, ',', '.') }}đ</span></li>
-                                    <li>Total <span>{{ number_format($subTotal * 1000, 0, ',', '.') }}đ</span></li>
-                                </ul>
+                                    @if(session('voucher') )
+        <li>Subtotal <span id="subtotal">{{ number_format($total * 1000, 0, ',', '.') }}đ</span></li>
+        <li>Voucher <span id="voucher">{{number_format(($total-$subTotal) *1000, 0, ',', '.')}}đ</span></li>
+        <li>Total <span id="grand-total">{{ number_format($subTotal * 1000, 0, ',', '.') }}đ</span></li>
+    @else
+    <li>Subtotal <span id="subtotal">{{ number_format($total * 1000, 0, ',', '.') }}đ</span></li>
+    <li>Voucher <span id="voucher">0đ</span></li>
+    <li>Total <span id="grand-total">{{ number_format($subTotal * 1000, 0, ',', '.') }}đ</span></li>
+    @endif 
+</ul>
                                 <div class="checkout__input__checkbox">
                                     <label for="payMoney">
                                         PayMoney

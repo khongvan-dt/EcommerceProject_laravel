@@ -9,3 +9,6 @@ Note:
 TK admin.
 namanhle02112003@gmail.com
 123456789
+
+php artisan schedule:work
+php artisan schedule:run

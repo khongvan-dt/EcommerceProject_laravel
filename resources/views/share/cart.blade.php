@@ -106,19 +106,36 @@
                 <div class="col-lg-4">
                     <div class="cart__discount">
                         <h6>Vouchers codes</h6>
-                        <form action="#">
-                            <input type="text" placeholder="voucher code">
-                            <button type="submit">Apply</button>
-                        </form>
+                        @if(session('voucher'))
+<div>
+    <form action="{{ route('removevoucher') }}" method="POST">
+        @csrf
+        <p>Voucher Applied: <strong>{{ session('voucher') }}</strong></p>
+
+        <button type="submit">
+            <i class="fa fa-close"></i>
+        </button>
+    </form>
+</div>
+@else
+<form action="{{ route('voucherToCart') }}" method="GET">
+    <input type="text" placeholder="Voucher Code" name="voucherCode">
+    <button type="submit">Apply</button>
+</form>
+@endif
+
+
                     </div>
                     <div class="cart__total">
                         <h6>Cart total</h6>
                         <ul>
     @if(isset($subTotal))
-        <li>Subtotal <span id="subtotal">{{ number_format($subTotal * 1000, 0, ',', '.') }}đ</span></li>
+        <li>Subtotal <span id="subtotal">{{ number_format($total * 1000, 0, ',', '.') }}đ</span></li>
+        <li>Voucher <span id="voucher">{{number_format(($total-$subTotal) *1000, 0, ',', '.')}}đ</span></li>
         <li>Total <span id="grand-total">{{ number_format($subTotal * 1000, 0, ',', '.') }}đ</span></li>
     @else
         <li>Subtotal <span id="subtotal">0đ</span></li>
+        <li>Voucher <span id="voucher">0đ</span></li>
         <li>Total <span id="grand-total">0đ</span></li>
     @endif
 </ul>
@@ -136,6 +153,7 @@
             event.preventDefault();
             document.getElementById('cartForm').submit();
         });
+
 
         document.querySelectorAll('.delete__product').forEach(function(deleteBtn) {
             deleteBtn.addEventListener('click', function(event) {

@@ -51,14 +51,14 @@ Route::get('/about', [DashboardUserController::class, 'about'])->name('about');
 Route::get('/blog', [DashboardUserController::class, 'blog'])->name('blog');
 Route::get('/product/{id}', [DashboardUserController::class, 'product'])->name('product');
 Route::get('cart', [CartController::class, 'index'])->name('cart');
+Route::get('/voucherToCart', [CartController::class, 'applyVoucher'])->name('voucherToCart');
 Route::post('/add-to-cart', [CartController::class, 'addToCart']); 
 Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
 Route::delete('/cart/delete/{productId}', [CartController::class, 'deleteCart'])->name('cart.delete');
 Route::get('checkout', [CheckoutController::class, 'checkout'])->name('checkout');
 Route::post('/checkout/process', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
-Route::post('/cart/apply-voucher', [CartController::class, 'applyVoucher'])->name('cart.apply-voucher');
-Route::post('/cart/remove-voucher', [CartController::class, 'removeVoucher'])->name('cart.remove-voucher');
+Route::post('/removevoucher', [CartController::class, 'removeVoucher'])->name('removevoucher');
 
 Route::middleware('auth')->group(function () {
     Route::get('/ListOrder', [DashboardUserController::class, 'listOrder'])->name('viewOrder');

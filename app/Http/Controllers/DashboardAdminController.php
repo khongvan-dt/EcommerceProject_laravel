@@ -237,17 +237,17 @@ class DashboardAdminController extends Controller implements FromCollection, Wit
                         'Tuần trước'
                     ];
                     $sales = [
-                        floatval($data[0]->wkend4),
-                        floatval($data[0]->wkend3),
-                        floatval($data[0]->wkend2),
-                        floatval($data[0]->wkend1)
+                        floatval($data[0]->wkend4) * 1000,
+                        floatval($data[0]->wkend3) * 1000,
+                        floatval($data[0]->wkend2) * 1000,
+                        floatval($data[0]->wkend1) * 1000
                     ];
                 } else {
                     $labels = ['Tuần 4 trước', 'Tuần 3 trước', 'Tuần 2 trước', 'Tuần trước'];
                     $sales = [0, 0, 0, 0];
                 }
                 break;
-
+    
             case 'monthly':
                 $data = $this->getMonthlySalesData();
                 if (isset($data[0])) {
@@ -257,18 +257,18 @@ class DashboardAdminController extends Controller implements FromCollection, Wit
                         'Tháng 4', 'Tháng 3', 'Tháng 2', 'Tháng 1'
                     ];
                     $sales = [
-                        floatval($data[0]->Monthly12),
-                        floatval($data[0]->Monthly11),
-                        floatval($data[0]->Monthly10),
-                        floatval($data[0]->Monthly9),
-                        floatval($data[0]->Monthly8),
-                        floatval($data[0]->Monthly7),
-                        floatval($data[0]->Monthly6),
-                        floatval($data[0]->Monthly5),
-                        floatval($data[0]->Monthly4),
-                        floatval($data[0]->Monthly3),
-                        floatval($data[0]->Monthly2),
-                        floatval($data[0]->Monthly1)
+                        floatval($data[0]->Monthly12) * 1000,
+                        floatval($data[0]->Monthly11) * 1000,
+                        floatval($data[0]->Monthly10) * 1000,
+                        floatval($data[0]->Monthly9) * 1000,
+                        floatval($data[0]->Monthly8) * 1000,
+                        floatval($data[0]->Monthly7) * 1000,
+                        floatval($data[0]->Monthly6) * 1000,
+                        floatval($data[0]->Monthly5) * 1000,
+                        floatval($data[0]->Monthly4) * 1000,
+                        floatval($data[0]->Monthly3) * 1000,
+                        floatval($data[0]->Monthly2) * 1000,
+                        floatval($data[0]->Monthly1) * 1000
                     ];
                 } else {
                     $labels = array_map(function($i) {
@@ -277,26 +277,26 @@ class DashboardAdminController extends Controller implements FromCollection, Wit
                     $sales = array_fill(0, 12, 0);
                 }
                 break;
-
+    
             default: // yearly
                 $data = $this->getYearlySalesData()->toArray();
                 $currentYear = now()->year;
                 $yearRange = range($currentYear - 4, $currentYear);
-
+    
                 $labels = [];
                 $sales = array_fill(0, 5, 0);
-
+    
                 foreach ($yearRange as $index => $year) {
                     $labels[] = "Năm $year";
                     foreach ($data as $record) {
                         if (isset($record['year']) && $record['year'] == $year) {
-                            $sales[$index] = floatval($record['total_value']);
+                            $sales[$index] = floatval($record['total_value']) * 1000;
                             break;
                         }
                     }
                 }
         }
-
+    
         return [
             'labels' => $labels,
             'sales' => $sales

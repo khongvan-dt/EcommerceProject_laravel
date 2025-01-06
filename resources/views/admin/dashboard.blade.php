@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
+
 <!-- ========== section start ========== -->
 <section class="section">
     <div class="container-fluid">
@@ -136,7 +137,7 @@
                     <div class="title d-flex flex-wrap justify-content-between">
                         <div class="left">
                             <h6 class="text-medium mb-10">Yearly Stats</h6>
-                            <h3 class="text-bold">${{ number_format($totalSalesRevenueThisMonth) }}</h3>
+                            <h3 class="text-bold">{{ number_format($totalSalesRevenueThisMonth *1000) }} VND</h3>
                         </div>
                         <div class="right">
                             <div class="select-style-1" style=" display: flex; gap: 10px;">
@@ -180,7 +181,6 @@
                             </div>
                         </div>
                     </div>
-                     
                     <div class="chart">
                         <canvas id="Chart1" style="width: 100%; height: 400px;"></canvas>
                     </div>
@@ -705,17 +705,15 @@
 </div>
 
 <script>
+    
 document.getElementById('exportForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    // Lấy modal element
     const modal = document.getElementById('exampleModal');
     
-    // Xóa class show và ẩn modal
     modal.classList.remove('show');
     modal.style.display = 'none';
     
-    // Xóa backdrop
     const modalBackdrop = document.querySelector('.modal-backdrop');
     if (modalBackdrop) {
         modalBackdrop.remove();

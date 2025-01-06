@@ -17,6 +17,7 @@ class DashboardAdminController extends Controller implements FromCollection, Wit
 {
     protected $startDate;
     protected $endDate;
+
      public function collection()
     {
         return $this->getSalesReportData($this->startDate, $this->endDate);
@@ -37,18 +38,18 @@ class DashboardAdminController extends Controller implements FromCollection, Wit
         ];
     }
 
-     public function map($row): array
+    public function map($row): array
     {
         return [
             $row->name,
-            number_format($row->priceIn, 0, ',', '.') . ' đ',
-            number_format($row->price, 0, ',', '.') . ' đ',
+            number_format($row->priceIn * 1000, 0, ',', '.') . ' đ',  // Nhân giá nhập với 1000
+            number_format($row->price * 1000, 0, ',', '.') . ' đ',     // Nhân giá bán với 1000
             $row->total_quantity,
             $row->total_customers,
-            number_format($row->total_revenue, 0, ',', '.') . ' đ',
-            number_format($row->total_cost, 0, ',', '.') . ' đ',
-            number_format($row->total_profit, 0, ',', '.') . ' đ',
-            $row->profit_percentage . '%'
+            number_format($row->total_revenue * 1000, 0, ',', '.') . ' đ',  // Nhân tổng doanh thu với 1000
+            number_format($row->total_cost * 1000, 0, ',', '.') . ' đ',     // Nhân tổng vốn với 1000
+            number_format($row->total_profit * 1000, 0, ',', '.') . ' đ',   // Nhân tổng lãi với 1000
+            $row->profit_percentage . '%'  // Tỷ lệ phần trăm giữ nguyên
         ];
     }
 
@@ -93,10 +94,10 @@ class DashboardAdminController extends Controller implements FromCollection, Wit
             $this->startDate = $request->input('startDate');
             $this->endDate = $request->input('endDate');
             $fileName = 'bao-cao-doanh-thu-' . date('d-m-Y') . '.xlsx';
-            return Excel::download($this, $fileName);
+            
+            return Excel::download($this, $fileName)
+                ->deleteFileAfterSend(true);
         }
-        
-        
         return view('admin.dashboard', [
             'totalSalesRevenueThisMonth' => $totalSalesRevenueThisMonth,
             'totalPriceInThisMonth' => $totalPriceInThisMonth,

@@ -145,34 +145,34 @@
                         <div class="right">
                             <div class="select-style-1" style=" display: flex; gap: 10px;">
                                 <div class="select-sm">
- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-Xuất dữ liệu excel </button>
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                                Xuất dữ liệu excel </button>
 
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <form action="{{ route('admin.dashboard') }}" method="GET">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Chọn thời gian xuất dữ liệu:</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <label for="startDate">Ngày bắt đầu:</label>
-          <input id="startDate" name="startDate" class="form-control" type="date" required />
-          <label for="endDate">Ngày kết thúc:</label>
-          <input id="endDate" name="endDate" class="form-control" type="date" required />
-          <input type="hidden" name="export" value="1">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-          <button type="submit" class="btn btn-primary">Xuất</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div> 
+                                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                    <form id="exportForm" action="{{ route('admin.dashboard') }}" method="GET">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Chọn thời gian xuất dữ liệu:</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        </div>
+                                        <div class="modal-body">
+                                        <label for="startDate">Ngày bắt đầu:</label>
+                                        <input id="startDate" name="startDate" class="form-control" type="date" required />
+                                        <label for="endDate">Ngày kết thúc:</label>
+                                        <input id="endDate" name="endDate" class="form-control" type="date" required />
+                                        <input type="hidden" name="export" value="1">
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                                        <button type="submit" class="btn btn-primary">Xuất</button>
+                                        </div>
+                                    </form>
+                                    </div>
+                                </div>
+                                </div> 
                            </div>
                                 <div class="select-position select-sm">
                                     <select class="light-bg" id="timeframeSelect">
@@ -184,12 +184,12 @@ Xuất dữ liệu excel </button>
                             </div>
                         </div>
                     </div>
+                     
                     <div class="chart">
                         <canvas id="Chart1" style="width: 100%; height: 400px;"></canvas>
                     </div>
                 </div>
             </div>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <div id="chartData" style="display: none;">
                 @json($chartData)
             </div>
@@ -697,4 +697,48 @@ Xuất dữ liệu excel </button>
     <!-- end container -->
 </section>
 <!-- ========== section end ========== -->
+<!-- Thêm div để hiển thị toast notification -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1070">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                Xuất file Excel thành công!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('exportForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Lấy modal element
+    const modal = document.getElementById('exampleModal');
+    
+    // Xóa class show và ẩn modal
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+    
+    // Xóa backdrop
+    const modalBackdrop = document.querySelector('.modal-backdrop');
+    if (modalBackdrop) {
+        modalBackdrop.remove();
+    }
+    
+    // Xóa class modal-open từ body
+    document.body.classList.remove('modal-open');
+    document.body.style.paddingRight = '';
+    
+    // Hiển thị toast notification
+    var successToast = new bootstrap.Toast(document.getElementById('successToast'), {
+        delay: 3000
+    });
+    successToast.show();
+    
+    // Submit form
+    setTimeout(() => {
+        this.submit();
+    }, 100);
+});</script>
 @endsection

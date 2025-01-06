@@ -697,8 +697,7 @@
     <!-- end container -->
 </section>
 <!-- ========== section end ========== -->
-<!-- Thêm div để hiển thị toast notification -->
-<div class="position-fixed top-0 end-0 p-3" style="z-index: 1070">
+ <div class="position-fixed top-0 end-0 p-3" style="z-index: 1070">
     <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
             <div class="toast-body">
@@ -725,18 +724,14 @@ document.getElementById('exportForm').addEventListener('submit', function(e) {
     if (modalBackdrop) {
         modalBackdrop.remove();
     }
-    
-    // Xóa class modal-open từ body
-    document.body.classList.remove('modal-open');
+        document.body.classList.remove('modal-open');
     document.body.style.paddingRight = '';
     
-    // Hiển thị toast notification
     var successToast = new bootstrap.Toast(document.getElementById('successToast'), {
         delay: 3000
     });
     successToast.show();
     
-    // Submit form
     setTimeout(() => {
         this.submit();
     }, 100);

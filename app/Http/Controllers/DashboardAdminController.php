@@ -72,7 +72,7 @@ class DashboardAdminController extends Controller implements FromCollection, Wit
         // Doanh thu bán hàng
         $totalSalesRevenueThisMonth = $this->getTotalSalesRevenue(now()->month, now()->year);
         $totalSalesRevenueLastMonth = $this->getTotalSalesRevenue(now()->subMonth()->month, now()->subMonth()->year);
-        $percentageChangePriceOut = $this->calculatePercentageChange($totalSalesRevenueThisMonth, $totalSalesRevenueLastMonth);
+        $percentageChangePriceOut = $this->calculatePercentageChange($totalSalesRevenueThisMonth , $totalSalesRevenueLastMonth);
 
         // Đơn hàng trong 30 ngày qua
         $totalOrdersLast30Days = $this->getTotalOrders(30);

@@ -65,7 +65,7 @@
                     </div>
                     <div class="content">
                         <h6 class="mb-10">Total Income</h6>
-                        <h3 class="text-bold mb-10"> ${{ number_format($totalPriceInThisMonth) }}</h3>
+                        <h3 class="text-bold mb-10"> {{ number_format($totalPriceInThisMonth * 1000) }} VND</h3>
                             @if ($percentageChangePriceIn >= 0)
                             <p class="text-sm text-success">
                                 <i class="lni lni-arrow-up"></i> {{$percentageChangePriceIn}}%
@@ -88,7 +88,7 @@
                     </div>
                     <div class="content">
                         <h6 class="mb-10">Total Expense</h6>
-                        <h3 class="text-bold mb-10">${{ number_format($totalSalesRevenueThisMonth) }}</h3>
+                        <h3 class="text-bold mb-10">{{ number_format($totalSalesRevenueThisMonth * 1000) }} VND</h3>
                             @if ($percentageChangePriceOut >= 0)
                             <p class="text-sm text-success">
 
